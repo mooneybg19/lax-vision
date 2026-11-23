@@ -51,7 +51,7 @@ def torso_feat(hsv, box):
         return np.zeros(16, np.uint8), 0.0
     p = hsv[ty1:ty2, tx1:tx2].reshape(-1, 3).astype(np.float32)
     # drop turf pixels from the torso patch
-    turf = (p[:, 0] > 30) & (p[:, 0] < 90) & (p[:, 1] > 50)
+    turf = is_turf_px(p)
     q = p[~turf] if (~turf).sum() > 6 else p
     hh = np.histogram(q[:, 0], bins=8, range=(0, 180), weights=(q[:, 1] > 60).astype(np.float32))[0]
     sh = np.histogram(q[:, 1], bins=4, range=(0, 256))[0]
@@ -59,6 +59,27 @@ def torso_feat(hsv, box):
     f = np.concatenate([hh / max(len(q), 1), sh / len(q), vh / len(q)])
     stripes = float(np.std(np.diff(hsv[ty1:ty2, (tx1 + tx2) // 2, 2].astype(np.float32)))) if ty2 - ty1 > 4 else 0.0
     return np.clip(f * 255, 0, 255).astype(np.uint8), stripes
+
+
+TURF = dict(h=60.0)
+
+
+def learn_turf(hsv):
+    """The field color for this frame: the most common hue in the lower two thirds of the picture
+    among colored pixels. Follows sunset light, shadows, blue or brown fields."""
+    p = hsv[hsv.shape[0] // 3:, ::4].reshape(-1, 3)
+    p = p[(p[:, 1] > 35) & (p[:, 2] > 40)]
+    if len(p) < 500:
+        return
+    hist = np.bincount(p[:, 0].astype(int), minlength=180).astype(float)
+    hist = np.convolve(np.concatenate([hist[-5:], hist, hist[:5]]), np.ones(9) / 9, "same")[5:-5]
+    TURF["h"] = float(np.argmax(hist))
+
+
+def is_turf_px(p):
+    dh = np.abs(p[:, 0].astype(float) - TURF["h"])
+    dh = np.minimum(dh, 180 - dh)
+    return (dh < 14) & (p[:, 1] > 30)
 
 
 def on_turf(hsv, box):
@@ -69,7 +90,7 @@ def on_turf(hsv, box):
     p = hsv[ys, xs].reshape(-1, 3)
     if len(p) == 0:
         return False
-    green = (p[:, 0] > 30) & (p[:, 0] < 90) & (p[:, 1] > 40)
+    green = is_turf_px(p)
     white = (p[:, 1] < 50) & (p[:, 2] > 170)
     return (green | white).mean() > 0.5
 
@@ -141,6 +162,7 @@ while True:
     t = a.start + fi / a.fps
     res = model.predict(im, classes=[0], conf=0.2, imgsz=W, verbose=False)[0]
     hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
+    learn_turf(hsv)
     boxes = res.boxes.xyxy.cpu().numpy().astype(int) if res.boxes is not None else np.zeros((0, 4), int)
     confs = res.boxes.conf.cpu().numpy() if res.boxes is not None else np.zeros(0)
     ids = res.boxes.id.cpu().numpy().astype(int) if (res.boxes is not None and res.boxes.id is not None) else -np.ones(len(boxes), int)
@@ -166,7 +188,7 @@ while True:
     gang = None
     if goal is not None:
         gang = cross_line_angle(hsv, ((goal[0] + goal[2]) / 2, goal[3]), boxes[turf] if turf.any() else [])
-    frames_meta.append(dict(t=round(t, 2), ph=round(ph, 1), goal=goal, gline_angle=None if gang is None else round(gang, 1)))
+    frames_meta.append(dict(t=round(t, 2), turf_hue=round(TURF['h'], 1), ph=round(ph, 1), goal=goal, gline_angle=None if gang is None else round(gang, 1)))
     for b, c, tid, tf, lc_ in zip(boxes, confs, ids, turf, lax_cls):
         f, s = torso_feat(hsv, b)
         rows.append([fi, t, tid, *b.tolist(), float(c), int(tf), float(s), int(lc_), *f.tolist()])

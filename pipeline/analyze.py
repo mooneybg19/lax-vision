@@ -83,15 +83,32 @@ cand = turf & ~is_ref
 rng = np.random.default_rng(0)
 idx = np.flatnonzero(cand)
 fit_idx = rng.choice(idx, min(len(idx), 20000), replace=False)
-km = KMeans(n_clusters=4, n_init=10, random_state=0).fit(F[fit_idx])
-lab = np.full(len(D), -1)
-lab[cand] = km.predict(F[cand])
-sizes = np.bincount(lab[cand], minlength=4)
+# whole-game fit: 3 groups (two teams + everything else), the two biggest are the teams
+km = KMeans(n_clusters=3, n_init=10, random_state=0).fit(F[fit_idx])
+sizes = np.bincount(km.labels_, minlength=3)
 teams = list(np.argsort(sizes)[::-1][:2])
+centers = km.cluster_centers_[teams]
 team = np.full(len(D), -1)            # 0 = team A, 1 = team B, 2 = ref, -1 = other/off field
-team[lab == teams[0]] = 0
-team[lab == teams[1]] = 1
+# lighting changes over a game (sun, shadows, lights): refit the two team colors in 10-minute windows,
+# starting from the whole-game colors so team A stays team A
+tt = D[:, 1]
+for w0 in np.arange(tt.min(), tt.max() + 1, 600.0):
+    sel = cand & (tt >= w0) & (tt < w0 + 600)
+    if sel.sum() < 50:
+        continue
+    kw = KMeans(n_clusters=2, init=centers, n_init=1, random_state=0).fit(F[sel])
+    c = kw.cluster_centers_
+    if np.linalg.norm(c[0] - centers[0]) + np.linalg.norm(c[1] - centers[1]) > \
+       np.linalg.norm(c[0] - centers[1]) + np.linalg.norm(c[1] - centers[0]):
+        c = c[::-1]
+    d = np.stack([np.linalg.norm(F[sel] - c[0], axis=1), np.linalg.norm(F[sel] - c[1], axis=1)], 1)
+    near = d.argmin(1)
+    # far from both team colors (goalie in a different top, coach, partial box): leave as 'other'
+    spread = np.percentile(d.min(1), 90)
+    lab_w = np.where(d.min(1) <= spread, near, -1)
+    team[np.flatnonzero(sel)] = lab_w
 team[is_ref] = 2
+sizes = np.array([(team == 0).sum(), (team == 1).sum(), (team == -1).sum() - (~turf).sum()])
 
 
 def color_name(c):
@@ -105,7 +122,7 @@ def color_name(c):
     return names[int(np.argmax(hue))] if hue.sum() > 0.05 else "gray"
 
 
-team_colors = [color_name(km.cluster_centers_[teams[0]]), color_name(km.cluster_centers_[teams[1]])]
+team_colors = [color_name(centers[0]), color_name(centers[1])]
 print("teams:", team_colors, "sizes", sizes.tolist(), "refs", int(is_ref.sum()))
 
 # ---- 2-5. per frame
@@ -168,7 +185,7 @@ def call_set(us):
 # ---- moments: runs of settled frames (gaps up to 1.5 s), at least 4 s long
 moments, cur = [], []
 for k, r in enumerate(per):
-    if r["settled"] and (not cur or r["t"] - per[cur[-1]]["t"] <= 1.6):
+    if r["settled"] and (not cur or r["t"] - per[cur[-1]]["t"] <= 3.1):
         cur.append(k)
     else:
         if cur and per[cur[-1]]["t"] - per[cur[0]]["t"] >= 4.0:
