@@ -1,0 +1,35 @@
+name: train lacrosse detector
+
+on:
+  workflow_dispatch:
+    inputs:
+      hours:
+        description: "Training time cap in hours"
+        default: "3"
+
+permissions:
+  contents: write
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+          pip install ultralytics huggingface_hub onnx onnxslim onnxruntime
+      - name: Train
+        run: python pipeline/train_lax.py --hours "${{ inputs.hours || '3' }}"
+      - name: Save model
+        run: |
+          git config user.name "lax-pipeline"
+          git config user.email "lax-pipeline@users.noreply.github.com"
+          git add -f models/lax.pt models/lax.onnx models/lax.yaml
+          git commit -m "Lacrosse detector trained on RF100-VL lacrosse (MIT) [skip ci]" || echo "nothing to commit"
+          git pull --rebase origin main
+          git push
