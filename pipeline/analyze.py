@@ -112,14 +112,15 @@ sizes = np.array([(team == 0).sum(), (team == 1).sum(), (team == -1).sum() - (~t
 
 
 def color_name(c):
-    hue = c[:8]; s = c[8:12]; v = c[12:16]
-    if s[:2].sum() > 0.6 and v[2:].sum() > 0.55:
-        return "white"
-    if v[:2].sum() > 0.55:
-        dom = ["red", "orange", "yellow", "green", "teal", "blue", "purple", "pink"][int(np.argmax(hue))] if hue.sum() > 0.08 else "black"
-        return f"dark {dom}" if dom != "black" else "black/dark"
+    """Rough jersey color from the torso signature: light vs dark first, a hue only if it is strong."""
+    hue = c[:8]; s_ = c[8:12]; v = c[12:16]
     names = ["red", "orange", "yellow", "green", "teal", "blue", "purple", "pink"]
-    return names[int(np.argmax(hue))] if hue.sum() > 0.05 else "gray"
+    hname = names[int(np.argmax(hue))] if hue.sum() > 0.25 else None
+    if v[2:].sum() > 0.55 and s_[:2].sum() > 0.6:
+        return "white"
+    if v[:2].sum() > 0.5:
+        return f"dark {hname}" if hname else "dark (navy/black)"
+    return hname or "gray"
 
 
 team_colors = [color_name(centers[0]), color_name(centers[1])]
