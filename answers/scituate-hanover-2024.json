@@ -1,0 +1,139 @@
+{
+ "game": "scituate-hanover-2024",
+ "naming": "top-first",
+ "source": "Brian via Film Labeler",
+ "frames": [
+  {
+   "id": "t01052",
+   "seconds": 1052,
+   "set": "1-3-2",
+   "offense": "White"
+  },
+  {
+   "id": "t01141",
+   "seconds": 1141,
+   "set": "1-3-2",
+   "offense": "White"
+  },
+  {
+   "id": "t01405",
+   "seconds": 1405,
+   "set": "1-4-1",
+   "offense": "White"
+  },
+  {
+   "id": "t01566",
+   "seconds": 1566,
+   "set": "Other",
+   "offense": "Blue"
+  },
+  {
+   "id": "t01642",
+   "seconds": 1642,
+   "set": "1-4-1",
+   "offense": "White"
+  },
+  {
+   "id": "t01928",
+   "seconds": 1928,
+   "set": "Open",
+   "offense": "Blue"
+  },
+  {
+   "id": "t02154",
+   "seconds": 2154,
+   "set": "Open",
+   "offense": "White"
+  },
+  {
+   "id": "t02238",
+   "seconds": 2238,
+   "set": "Other",
+   "offense": "Blue"
+  },
+  {
+   "id": "t02512",
+   "seconds": 2512,
+   "set": "Open",
+   "offense": "Blue"
+  },
+  {
+   "id": "t02587",
+   "seconds": 2587,
+   "set": "2-2-2",
+   "offense": "White"
+  },
+  {
+   "id": "t02674",
+   "seconds": 2674,
+   "set": "Skip",
+   "offense": null
+  },
+  {
+   "id": "t02881",
+   "seconds": 2881,
+   "set": "1-4-1",
+   "offense": "Blue"
+  },
+  {
+   "id": "t02966",
+   "seconds": 2966,
+   "set": "2-2-2",
+   "offense": "Blue"
+  },
+  {
+   "id": "t03025",
+   "seconds": 3025,
+   "set": "2-3-1",
+   "offense": "Blue"
+  },
+  {
+   "id": "t03425",
+   "seconds": 3425,
+   "set": "1-4-1",
+   "offense": "White"
+  },
+  {
+   "id": "t04065",
+   "seconds": 4065,
+   "set": "Skip",
+   "offense": null
+  },
+  {
+   "id": "t04149",
+   "seconds": 4149,
+   "set": "Other",
+   "offense": "White"
+  },
+  {
+   "id": "t04413",
+   "seconds": 4413,
+   "set": "Other",
+   "offense": "Blue"
+  },
+  {
+   "id": "t04612",
+   "seconds": 4612,
+   "set": "1-3-2",
+   "offense": "White"
+  },
+  {
+   "id": "t05716",
+   "seconds": 5716,
+   "set": "1-4-1",
+   "offense": "White"
+  },
+  {
+   "id": "t05983",
+   "seconds": 5983,
+   "set": "Open",
+   "offense": "White"
+  },
+  {
+   "id": "t06032",
+   "seconds": 6032,
+   "set": "2-3-1",
+   "offense": "White"
+  }
+ ]
+}
