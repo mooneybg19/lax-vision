@@ -50,6 +50,8 @@ for md in mine:
         if len(buf) < W * H * 3 or len(res) >= len(meta["frames"]):
             break
         res.append(cross_lines(np.frombuffer(buf, np.uint8).reshape(H, W, 3)))
+    proc.kill()          # stop ffmpeg before waiting: it may still be writing past the frames we need
+    proc.stdout.close()
     proc.wait()
     os.makedirs(os.path.join(a.out, md), exist_ok=True)
     json.dump(dict(moment=meta["moment"], lines=res), open(os.path.join(a.out, md, "lines.json"), "w"))
