@@ -1,0 +1,69 @@
+name: track settled windows (v1)
+
+on:
+  workflow_dispatch:
+    inputs:
+      game:
+        description: "game file name in games/ (no .json)"
+        default: "scituate-hanover-2024"
+      parts:
+        description: "how many parallel pieces"
+        default: "8"
+
+permissions:
+  contents: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      parts: ${{ steps.p.outputs.parts }}
+    steps:
+      - id: p
+        run: python3 -c "import json;print('parts='+json.dumps(list(range(int('${{ inputs.parts }}')))))" >> "$GITHUB_OUTPUT"
+
+  track:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        part: ${{ fromJson(needs.plan.outputs.parts) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+          pip install ultralytics lap opencv-python-headless numpy
+      - name: Track
+        run: python pipeline/track_v1.py games/${{ inputs.game }}.json results/${{ inputs.game }}-sets/moments.json work/v1 --part ${{ matrix.part }} --parts ${{ inputs.parts }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: part${{ matrix.part }}
+          path: work/v1
+
+  save:
+    needs: track
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: work/parts
+      - name: Save
+        run: |
+          mkdir -p results/${{ inputs.game }}-tracks-v1
+          for d in work/parts/part*/m*; do cp -r "$d" results/${{ inputs.game }}-tracks-v1/; done
+          cp work/parts/part0/botsort_lax.yaml results/${{ inputs.game }}-tracks-v1/ 2>/dev/null || true
+          git config user.name "lax-pipeline"
+          git config user.email "lax-pipeline@users.noreply.github.com"
+          git add results
+          git commit -m "v1 tracks: ${{ inputs.game }} [skip ci]" || echo "nothing to commit"
+          git pull --rebase origin main
+          git push
