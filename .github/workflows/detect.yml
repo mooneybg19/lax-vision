@@ -1,0 +1,75 @@
+name: detect players (whole game, split in parallel)
+
+on:
+  workflow_dispatch:
+    inputs:
+      game:
+        description: "game file name in games/ (no .json)"
+        default: "scituate-hanover-2024"
+      segments:
+        description: "how many parallel pieces"
+        default: "6"
+
+permissions:
+  contents: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      segs: ${{ steps.p.outputs.segs }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: p
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json
+          g = json.load(open("games/${{ inputs.game }}.json"))
+          n = int("${{ inputs.segments }}")
+          d = float(g["duration_s"]); L = d / n
+          segs = [{"i": i, "start": round(i * L, 1), "length": round(L + 0.5, 1)} for i in range(n)]
+          print("segs=" + json.dumps(segs))
+          EOF
+
+  detect:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        seg: ${{ fromJson(needs.plan.outputs.segs) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+          pip install ultralytics lap opencv-python-headless numpy
+      - name: Detect and track
+        run: python pipeline/detect.py games/${{ inputs.game }}.json work/seg${{ matrix.seg.i }} --start ${{ matrix.seg.start }} --length ${{ matrix.seg.length }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seg${{ matrix.seg.i }}
+          path: work/seg${{ matrix.seg.i }}
+
+  save:
+    needs: detect
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: results/${{ inputs.game }}-dets
+      - name: Save
+        run: |
+          git config user.name "lax-pipeline"
+          git config user.email "lax-pipeline@users.noreply.github.com"
+          git add results
+          git commit -m "Detections: ${{ inputs.game }} [skip ci]" || echo "nothing to commit"
+          git pull --rebase origin main
+          git push
