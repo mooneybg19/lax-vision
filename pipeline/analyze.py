@@ -32,23 +32,27 @@ SETS = {
     "Open":  (1, 2, 2, 1),   # wheel / circle
     "Open ": (2, 1, 1, 2),   # rotated open (2 top, 2 behind); reported as "Open"
 }
-# Naming direction switch: "top-first" (Crown Point) or "goal-first" (Lacrosse Unlimited, where the
-# same 1-3-2 is called 2-3-1). Only changes the printed names.
-NAMING = os.environ.get("SET_NAMING", "top-first")
+# Calls are always STORED top-first (Crown Point). Display direction is a switch: "top-first" or
+# "goal-first" (Lacrosse Unlimited, where the same 1-3-2 is called 2-3-1). Set with --naming or the
+# SET_NAMING environment variable. Named sets (Open, Other) never flip.
 TOP_YD, MID_YD, LOW_YD, ZONE_YD = 10.0, 4.0, -1.5, 22.0
 
 
 def set_name(k):
-    k = k.strip()
-    if NAMING == "goal-first" and k[0].isdigit():
-        return "-".join(reversed(k.split("-")))
-    return k
+    return k.strip()
+
+
+def flip(k):
+    """Top-first name -> goal-first name (2-3-1 <-> 1-3-2, 3-1-2 <-> 2-1-3; symmetric and named sets unchanged)."""
+    return "-".join(reversed(k.split("-"))) if k[:1].isdigit() else k
 YD_PER_HEIGHT = 2.0
 
 ap = argparse.ArgumentParser()
 ap.add_argument("dets_dir")
 ap.add_argument("out")
+ap.add_argument("--naming", choices=["top-first", "goal-first"], default=os.environ.get("SET_NAMING", "top-first"))
 a = ap.parse_args()
+NAMING = a.naming
 
 dets, frames = [], []
 for seg in sorted(glob.glob(os.path.join(a.dets_dir, "seg*"))):
@@ -188,10 +192,11 @@ for m in moments:
     share = votes[best] / sum(votes.values())
     mid_k = m[len(m) // 2]
     out.append(dict(start=per[m[0]]["t"], end=per[m[-1]]["t"], mid=per[mid_k]["t"],
-                    offense=team_colors[off], offense_team=off, set=best, confidence=round(share, 2),
+                    offense=team_colors[off], offense_team=off, set=best, set_goal_first=flip(best),
+                    set_display=best if NAMING == "top-first" else flip(best), confidence=round(share, 2),
                     offense_side_agreement=round(offs.count(off) / len(offs), 2), samples=calls))
 os.makedirs(a.out, exist_ok=True)
-json.dump(dict(team_colors=team_colors, naming=NAMING,
+json.dump(dict(team_colors=team_colors, stored_naming="top-first", display_naming=NAMING,
                set_library=sorted({set_name(k) for k in SETS}) + ["Other"],
                bands_yards=dict(top=f">= {TOP_YD}", middle=f"{MID_YD}-{TOP_YD}", front=f"{LOW_YD}-{MID_YD}", behind=f"< {LOW_YD}"),
                frames=len(frames), goal_seen=sum(f.get("goal") is not None for f in frames), moments=out),
@@ -204,4 +209,4 @@ print(f"goal seen in {sum(f.get('goal') is not None for f in frames)}/{len(frame
 from collections import Counter
 print(Counter(m["set"] for m in out))
 for m in out[:40]:
-    print(f"{m['start']:7.1f}-{m['end']:7.1f}  offense {m['offense']:<12} {m['set']:<6} conf {m['confidence']}")
+    print(f"{m['start']:7.1f}-{m['end']:7.1f}  offense {m['offense']:<12} {m['set_display']:<6} conf {m['confidence']}")
