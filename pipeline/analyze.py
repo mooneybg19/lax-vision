@@ -141,9 +141,27 @@ for fi, fm in enumerate(frames):
     gx, gy = (g[0] + g[2]) / 2.0, float(g[3])
     ang = np.radians(fm["gline_angle"] if fm.get("gline_angle") is not None else 90.0)
     cot = np.cos(ang) / np.sin(ang) if abs(np.sin(ang)) > 1e-3 else 0.0
+    # crowd filter: benches and sideline crowds stand shoulder to shoulder in a row; players don't
+    rr = [i for i in rows if turf[i]]
+    crowd = set()
+    if len(rr) >= 6:
+        fy = np.array([D[i, 6] for i in rr]); fx = np.array([(D[i, 3] + D[i, 5]) / 2 for i in rr])
+        hh = np.array([D[i, 6] - D[i, 4] for i in rr])
+        for j in range(len(rr)):
+            near = (np.abs(fy - fy[j]) < 0.3 * hh[j]) & (np.abs(fx - fx[j]) < 2.5 * hh[j])
+            if near.sum() >= 6:
+                crowd.update(np.array(rr)[near].tolist())
     pts = []
+    others = 0
     for i in rows:
+        if i in crowd or not turf[i]:
+            continue
         if team[i] not in (0, 1):
+            if team[i] == -1:
+                x1, y1, x2, y2 = D[i, 3:7]
+                h = max(y2 - y1, 1.0)
+                if abs((x1 + x2) / 2 - gx) / h * YD_PER_HEIGHT < ZONE_YD and abs(y2 - gy) / h * YD_PER_HEIGHT < 30:
+                    others += 1
             continue
         x1, y1, x2, y2 = D[i, 3:7]
         h = max(y2 - y1, 1.0)
@@ -158,7 +176,9 @@ for fi, fm in enumerate(frames):
     pts = [(tm, u * side, lat, i) for tm, u, lat, i in pts]
     zone = [p for p in pts if -8 <= p[1] <= ZONE_YD and abs(p[2]) <= 30]
     nA = sum(p[0] == 0 for p in zone); nB = sum(p[0] == 1 for p in zone)
-    if nA < 4 or nB < 4:
+    # a real settled possession: both teams there, and almost nobody near the goal in a third color
+    # (halftime youth groups, warmups, crowds on the field)
+    if nA < 4 or nB < 4 or others > 3 or others > 0.3 * (nA + nB):
         per.append(rec); continue
     mu = {tm: float(np.mean([p[1] for p in zone if p[0] == tm])) for tm in (0, 1)}
     off = 0 if mu[0] > mu[1] else 1
@@ -186,13 +206,14 @@ def call_set(us):
 # ---- moments: runs of settled frames (gaps up to 1.5 s), at least 4 s long
 moments, cur = [], []
 for k, r in enumerate(per):
-    if r["settled"] and (not cur or r["t"] - per[cur[-1]]["t"] <= 3.1):
-        cur.append(k)
-    else:
-        if cur and per[cur[-1]]["t"] - per[cur[0]]["t"] >= 4.0:
+    if not r["settled"]:
+        continue
+    if cur and r["t"] - per[cur[-1]]["t"] > 3.1:   # allow short dropouts (a missed goal or player)
+        if per[cur[-1]]["t"] - per[cur[0]]["t"] >= 4.0 and len(cur) >= 5:
             moments.append(cur)
-        cur = [k] if r["settled"] else []
-if cur and per[cur[-1]]["t"] - per[cur[0]]["t"] >= 4.0:
+        cur = []
+    cur.append(k)
+if cur and per[cur[-1]]["t"] - per[cur[0]]["t"] >= 4.0 and len(cur) >= 5:
     moments.append(cur)
 
 out = []
