@@ -1,0 +1,78 @@
+{
+ "anne-arundel-carroll-2021": {
+  "programs": [],
+  "stream_groups": [],
+  "streams": [
+   {
+    "codec_name": "h264",
+    "width": 1280,
+    "height": 720,
+    "r_frame_rate": "30/1"
+   },
+   {
+    "codec_name": "aac",
+    "r_frame_rate": "0/0"
+   }
+  ],
+  "format": {
+   "duration": "5555.420590"
+  }
+ },
+ "jesuit-westview": {
+  "programs": [],
+  "stream_groups": [],
+  "streams": [
+   {
+    "codec_name": "h264",
+    "width": 1920,
+    "height": 1080,
+    "r_frame_rate": "30/1"
+   },
+   {
+    "codec_name": "aac",
+    "r_frame_rate": "0/0"
+   }
+  ],
+  "format": {
+   "duration": "6982.565442"
+  }
+ },
+ "scituate-hanover-2024": {
+  "programs": [],
+  "stream_groups": [],
+  "streams": [
+   {
+    "codec_name": "h264",
+    "width": 1920,
+    "height": 1080,
+    "r_frame_rate": "30000/1001"
+   },
+   {
+    "codec_name": "aac",
+    "r_frame_rate": "0/0"
+   }
+  ],
+  "format": {
+   "duration": "6210.362630"
+  }
+ },
+ "stillwater-bsm-2025": {
+  "programs": [],
+  "stream_groups": [],
+  "streams": [
+   {
+    "codec_name": "h264",
+    "width": 1920,
+    "height": 1080,
+    "r_frame_rate": "60000/1001"
+   },
+   {
+    "codec_name": "aac",
+    "r_frame_rate": "0/0"
+   }
+  ],
+  "format": {
+   "duration": "3137.689252"
+  }
+ }
+}
