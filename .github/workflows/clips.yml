@@ -1,0 +1,24 @@
+name: moment clips
+
+on:
+  workflow_dispatch:
+    inputs:
+      game:
+        description: "game file name in games/ (no .json)"
+        default: "scituate-hanover-2024"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Cut clips
+        run: python pipeline/clips.py games/${{ inputs.game }}.json results/${{ inputs.game }}-sets/moments.json clips
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clips-${{ inputs.game }}
+          path: clips
+          retention-days: 14
