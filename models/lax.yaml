@@ -1,0 +1,6 @@
+dataset: Roboflow100-VL lacrosse-object-detection (License: MIT), via HF mirror gatilin/rf100-vl
+images: {"train": 350, "val": 100, "test": 50}
+imgsz: 960
+map50: 0.783
+map50_95: 0.584
+per_class_map50: {"Goalie": 0.736, "Longpole": 0.666, "Referee": 0.94, "Shortstick": 0.791}
