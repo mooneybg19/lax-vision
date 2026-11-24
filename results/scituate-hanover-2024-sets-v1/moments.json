@@ -1,0 +1,2335 @@
+{
+ "team_colors": [
+  "white",
+  "blue"
+ ],
+ "stored_naming": "top-first",
+ "display_naming": "top-first",
+ "set_library": [
+  "1-3-2",
+  "1-4-1",
+  "2-2-2",
+  "2-3-1",
+  "3-1-2",
+  "3-3",
+  "Open",
+  "Other"
+ ],
+ "summary": {
+  "across_field_stretch": 4.37,
+  "skipped": 13,
+  "frames": 2185,
+  "share_all_six_seen": 0.4,
+  "share_some_inferred": 0.6,
+  "inferred_player_frames": {
+   "memory": 412,
+   "exit_edge": 141,
+   "unknown": 1437
+  },
+  "share_positions_from_lines": 0.12,
+  "spots_released_for_subs": 65,
+  "open_spots_filled": 912,
+  "possession_changes": 34,
+  "agree_with_v0": 0.22,
+  "sets": {
+   "3-3": 4,
+   "2-3-1": 14,
+   "Other": 2,
+   "Skip": 13,
+   "3-1-2": 5,
+   "Open": 11,
+   "1-3-2": 1
+  }
+ },
+ "moments": [
+  {
+   "moment": 1,
+   "start": 1049.2,
+   "end": 1060.2,
+   "mid": 1052.2,
+   "v0_set": "2-3-1",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "3-3",
+   "set_goal_first": "3-3",
+   "set_display": "3-3",
+   "confidence": 0.85,
+   "set_changes": [
+    "2-3-1",
+    "3-3",
+    "Open",
+    "Open"
+   ],
+   "players_seen": 4.9,
+   "players_inferred": 1.1,
+   "inferred_from": {
+    "memory": 0.23,
+    "exit-edge": 0.45,
+    "unknown": 0.44
+   },
+   "frames_all_six_seen": 0.33,
+   "spots_released_for_subs": 0,
+   "open_spots_filled": 24,
+   "possession_changes": 2,
+   "camera_cuts": 0,
+   "settled_share": 0.72,
+   "yards_from_lines": 0.07,
+   "timeline": [
+    {
+     "frm": 1049.2,
+     "to": 1049.6,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.0,
+     "players_seen": 4.2,
+     "players_inferred": 1.8
+    },
+    {
+     "frm": 1049.7,
+     "to": 1052.3,
+     "set": "Other",
+     "set_goal_first": "Other",
+     "confidence": 0.0,
+     "players_seen": 5.8,
+     "players_inferred": 0.2
+    },
+    {
+     "frm": 1052.7,
+     "to": 1056.3,
+     "set": "3-3",
+     "set_goal_first": "3-3",
+     "confidence": 0.85,
+     "players_seen": 5.6,
+     "players_inferred": 0.4
+    },
+    {
+     "frm": 1056.5,
+     "to": 1058.5,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.48,
+     "players_seen": 4.5,
+     "players_inferred": 1.5
+    },
+    {
+     "frm": 1058.6,
+     "to": 1060.2,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.55,
+     "players_seen": 3.9,
+     "players_inferred": 2.1
+    }
+   ]
+  },
+  {
+   "moment": 2,
+   "start": 1079.2,
+   "end": 1090.7,
+   "mid": 1085.7,
+   "v0_set": "2-3-1",
+   "v0_offense": "white",
+   "offense": "blue",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.2,
+   "set_changes": [
+    "2-3-1",
+    "2-3-1",
+    "Open"
+   ],
+   "players_seen": 5.1,
+   "players_inferred": 0.9,
+   "inferred_from": {
+    "memory": 0.34,
+    "exit-edge": 0.02,
+    "unknown": 0.51
+   },
+   "frames_all_six_seen": 0.44,
+   "spots_released_for_subs": 1,
+   "open_spots_filled": 35,
+   "possession_changes": 1,
+   "camera_cuts": 0,
+   "settled_share": 0.66,
+   "yards_from_lines": 0.08,
+   "timeline": [
+    {
+     "frm": 1079.2,
+     "to": 1083.6,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.2,
+     "players_seen": 5.4,
+     "players_inferred": 0.6
+    },
+    {
+     "frm": 1083.7,
+     "to": 1085.2,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.07,
+     "players_seen": 5.4,
+     "players_inferred": 0.6
+    },
+    {
+     "frm": 1085.6,
+     "to": 1090.7,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.81,
+     "players_seen": 4.7,
+     "players_inferred": 1.3
+    }
+   ]
+  },
+  {
+   "moment": 3,
+   "start": 1137.2,
+   "end": 1141.7,
+   "mid": 1140.7,
+   "v0_set": "3-3",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "Other",
+   "set_goal_first": "Other",
+   "set_display": "Other",
+   "confidence": 0.0,
+   "set_changes": [],
+   "players_seen": 4.4,
+   "players_inferred": 1.6,
+   "inferred_from": {
+    "memory": 0.88,
+    "exit-edge": 0.0,
+    "unknown": 0.75
+   },
+   "frames_all_six_seen": 0.12,
+   "spots_released_for_subs": 0,
+   "open_spots_filled": 27,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.22,
+   "yards_from_lines": 0.05,
+   "timeline": [
+    {
+     "frm": 1137.5,
+     "to": 1140.6,
+     "set": "Other",
+     "set_goal_first": "Other",
+     "confidence": 0.0,
+     "players_seen": 4.4,
+     "players_inferred": 1.6
+    }
+   ]
+  },
+  {
+   "moment": 4,
+   "start": 1158.2,
+   "end": 1163.7,
+   "mid": 1160.2,
+   "v0_set": "Other",
+   "v0_offense": "white",
+   "offense": "blue",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 0.87,
+   "settled_share": 0.13,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 3.1,
+   "players_inferred": 2.9
+  },
+  {
+   "moment": 5,
+   "start": 1362.2,
+   "end": 1391.7,
+   "mid": 1374.7,
+   "v0_set": "2-3-1",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.4,
+   "set_changes": [
+    "2-3-1",
+    "2-3-1",
+    "3-1-2",
+    "2-3-1"
+   ],
+   "players_seen": 4.8,
+   "players_inferred": 1.2,
+   "inferred_from": {
+    "memory": 0.39,
+    "exit-edge": 0.07,
+    "unknown": 0.76
+   },
+   "frames_all_six_seen": 0.12,
+   "spots_released_for_subs": 2,
+   "open_spots_filled": 67,
+   "possession_changes": 3,
+   "camera_cuts": 0,
+   "settled_share": 0.38,
+   "yards_from_lines": 0.27,
+   "timeline": [
+    {
+     "frm": 1362.2,
+     "to": 1380.6,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.4,
+     "players_seen": 5.0,
+     "players_inferred": 1.0
+    },
+    {
+     "frm": 1380.7,
+     "to": 1383.8,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.36,
+     "players_seen": 4.5,
+     "players_inferred": 1.5
+    },
+    {
+     "frm": 1384.0,
+     "to": 1389.1,
+     "set": "3-1-2",
+     "set_goal_first": "2-1-3",
+     "confidence": 0.57,
+     "players_seen": 4.6,
+     "players_inferred": 1.4
+    },
+    {
+     "frm": 1389.2,
+     "to": 1391.7,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.0,
+     "players_seen": 5.0,
+     "players_inferred": 1.0
+    }
+   ]
+  },
+  {
+   "moment": 6,
+   "start": 1398.2,
+   "end": 1410.2,
+   "mid": 1405.2,
+   "v0_set": "2-3-1",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "3-1-2",
+   "set_goal_first": "2-1-3",
+   "set_display": "3-1-2",
+   "confidence": 0.26,
+   "set_changes": [
+    "2-3-1",
+    "3-1-2",
+    "Open",
+    "2-3-1"
+   ],
+   "players_seen": 5.4,
+   "players_inferred": 0.6,
+   "inferred_from": {
+    "memory": 0.17,
+    "exit-edge": 0.0,
+    "unknown": 0.47
+   },
+   "frames_all_six_seen": 0.49,
+   "spots_released_for_subs": 0,
+   "open_spots_filled": 27,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.77,
+   "yards_from_lines": 0.02,
+   "timeline": [
+    {
+     "frm": 1398.2,
+     "to": 1400.1,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.39,
+     "players_seen": 5.5,
+     "players_inferred": 0.5
+    },
+    {
+     "frm": 1400.2,
+     "to": 1404.2,
+     "set": "3-1-2",
+     "set_goal_first": "2-1-3",
+     "confidence": 0.26,
+     "players_seen": 5.7,
+     "players_inferred": 0.3
+    },
+    {
+     "frm": 1404.6,
+     "to": 1406.6,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.85,
+     "players_seen": 5.0,
+     "players_inferred": 1.0
+    },
+    {
+     "frm": 1406.7,
+     "to": 1410.1,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.34,
+     "players_seen": 4.8,
+     "players_inferred": 1.2
+    }
+   ]
+  },
+  {
+   "moment": 7,
+   "start": 1547.2,
+   "end": 1553.0,
+   "mid": 1552.5,
+   "v0_set": "Open",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "Open",
+   "set_goal_first": "Open",
+   "set_display": "Open",
+   "confidence": 0.69,
+   "set_changes": [
+    "Open"
+   ],
+   "players_seen": 5.1,
+   "players_inferred": 0.9,
+   "inferred_from": {
+    "memory": 0.35,
+    "exit-edge": 0.0,
+    "unknown": 0.55
+   },
+   "frames_all_six_seen": 0.32,
+   "spots_released_for_subs": 2,
+   "open_spots_filled": 29,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.66,
+   "yards_from_lines": 0.05,
+   "timeline": [
+    {
+     "frm": 1547.2,
+     "to": 1553.0,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.69,
+     "players_seen": 5.1,
+     "players_inferred": 0.9
+    }
+   ]
+  },
+  {
+   "moment": 8,
+   "start": 1561.5,
+   "end": 1568.5,
+   "mid": 1565.5,
+   "v0_set": "1-4-1",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 1.0,
+   "settled_share": 0.0,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 2.3,
+   "players_inferred": 3.7
+  },
+  {
+   "moment": 9,
+   "start": 1596.5,
+   "end": 1614.5,
+   "mid": 1609.0,
+   "v0_set": "2-3-1",
+   "v0_offense": "white",
+   "offense": "blue",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.67,
+   "set_changes": [
+    "2-3-1",
+    "1-4-1"
+   ],
+   "players_seen": 4.8,
+   "players_inferred": 1.2,
+   "inferred_from": {
+    "memory": 0.21,
+    "exit-edge": 0.0,
+    "unknown": 1.04
+   },
+   "frames_all_six_seen": 0.22,
+   "spots_released_for_subs": 0,
+   "open_spots_filled": 27,
+   "possession_changes": 1,
+   "camera_cuts": 0,
+   "settled_share": 0.74,
+   "yards_from_lines": 0.04,
+   "timeline": [
+    {
+     "frm": 1596.5,
+     "to": 1598.2,
+     "set": "Other",
+     "set_goal_first": "Other",
+     "confidence": 0.0,
+     "players_seen": 5.9,
+     "players_inferred": 0.1
+    },
+    {
+     "frm": 1598.4,
+     "to": 1601.6,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.67,
+     "players_seen": 5.2,
+     "players_inferred": 0.8
+    },
+    {
+     "frm": 1601.8,
+     "to": 1614.4,
+     "set": "1-4-1",
+     "set_goal_first": "1-4-1",
+     "confidence": 0.54,
+     "players_seen": 4.4,
+     "players_inferred": 1.6
+    }
+   ]
+  },
+  {
+   "moment": 10,
+   "start": 1633.5,
+   "end": 1652.5,
+   "mid": 1642.5,
+   "v0_set": "Open",
+   "v0_offense": "blue",
+   "offense": "white",
+   "set": "3-1-2",
+   "set_goal_first": "2-1-3",
+   "set_display": "3-1-2",
+   "confidence": 0.82,
+   "set_changes": [
+    "3-1-2",
+    "3-1-2",
+    "2-3-1",
+    "3-1-2",
+    "Open"
+   ],
+   "players_seen": 5.3,
+   "players_inferred": 0.7,
+   "inferred_from": {
+    "memory": 0.22,
+    "exit-edge": 0.0,
+    "unknown": 0.47
+   },
+   "frames_all_six_seen": 0.42,
+   "spots_released_for_subs": 5,
+   "open_spots_filled": 74,
+   "possession_changes": 2,
+   "camera_cuts": 1,
+   "settled_share": 0.76,
+   "yards_from_lines": 0.19,
+   "timeline": [
+    {
+     "frm": 1633.5,
+     "to": 1635.6,
+     "set": "3-1-2",
+     "set_goal_first": "2-1-3",
+     "confidence": 0.82,
+     "players_seen": 5.3,
+     "players_inferred": 0.7
+    },
+    {
+     "frm": 1635.8,
+     "to": 1637.6,
+     "set": "3-1-2",
+     "set_goal_first": "2-1-3",
+     "confidence": 0.85,
+     "players_seen": 5.8,
+     "players_inferred": 0.2
+    },
+    {
+     "frm": 1637.8,
+     "to": 1642.6,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.03,
+     "players_seen": 5.5,
+     "players_inferred": 0.5
+    },
+    {
+     "frm": 1642.8,
+     "to": 1647.9,
+     "set": "3-1-2",
+     "set_goal_first": "2-1-3",
+     "confidence": 0.56,
+     "players_seen": 5.1,
+     "players_inferred": 0.9
+    },
+    {
+     "frm": 1648.1,
+     "to": 1652.2,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.99,
+     "players_seen": 5.0,
+     "players_inferred": 1.0
+    }
+   ]
+  },
+  {
+   "moment": 11,
+   "start": 1707.0,
+   "end": 1715.0,
+   "mid": 1713.0,
+   "v0_set": "2-3-1",
+   "v0_offense": "white",
+   "offense": "blue",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 0.91,
+   "settled_share": 0.09,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 2.2,
+   "players_inferred": 3.8
+  },
+  {
+   "moment": 12,
+   "start": 1738.0,
+   "end": 1743.0,
+   "mid": 1740.5,
+   "v0_set": "3-1-2",
+   "v0_offense": "blue",
+   "offense": "white",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.38,
+   "set_changes": [
+    "2-3-1"
+   ],
+   "players_seen": 5.2,
+   "players_inferred": 0.8,
+   "inferred_from": {
+    "memory": 0.38,
+    "exit-edge": 0.17,
+    "unknown": 0.25
+   },
+   "frames_all_six_seen": 0.42,
+   "spots_released_for_subs": 2,
+   "open_spots_filled": 17,
+   "possession_changes": 1,
+   "camera_cuts": 0,
+   "settled_share": 0.59,
+   "yards_from_lines": 0.1,
+   "timeline": [
+    {
+     "frm": 1738.9,
+     "to": 1742.9,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.38,
+     "players_seen": 5.2,
+     "players_inferred": 0.8
+    }
+   ]
+  },
+  {
+   "moment": 13,
+   "start": 1926.0,
+   "end": 1931.0,
+   "mid": 1927.5,
+   "v0_set": "Other",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "3-1-2",
+   "set_goal_first": "2-1-3",
+   "set_display": "3-1-2",
+   "confidence": 0.99,
+   "set_changes": [
+    "2-3-1",
+    "3-1-2"
+   ],
+   "players_seen": 4.6,
+   "players_inferred": 1.4,
+   "inferred_from": {
+    "memory": 0.26,
+    "exit-edge": 0.12,
+    "unknown": 1.06
+   },
+   "frames_all_six_seen": 0.09,
+   "spots_released_for_subs": 2,
+   "open_spots_filled": 5,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.83,
+   "yards_from_lines": 0.01,
+   "timeline": [
+    {
+     "frm": 1926.1,
+     "to": 1926.8,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.0,
+     "players_seen": 4.0,
+     "players_inferred": 2.0
+    },
+    {
+     "frm": 1926.9,
+     "to": 1931.0,
+     "set": "3-1-2",
+     "set_goal_first": "2-1-3",
+     "confidence": 0.99,
+     "players_seen": 4.6,
+     "players_inferred": 1.4
+    }
+   ]
+  },
+  {
+   "moment": 14,
+   "start": 1957.0,
+   "end": 1968.0,
+   "mid": 1964.5,
+   "v0_set": "3-3",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.28,
+   "set_changes": [
+    "2-3-1",
+    "2-3-1"
+   ],
+   "players_seen": 5.3,
+   "players_inferred": 0.7,
+   "inferred_from": {
+    "memory": 0.1,
+    "exit-edge": 0.0,
+    "unknown": 0.6
+   },
+   "frames_all_six_seen": 0.4,
+   "spots_released_for_subs": 1,
+   "open_spots_filled": 33,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.81,
+   "yards_from_lines": 0.0,
+   "timeline": [
+    {
+     "frm": 1957.5,
+     "to": 1960.8,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.28,
+     "players_seen": 5.3,
+     "players_inferred": 0.7
+    },
+    {
+     "frm": 1961.0,
+     "to": 1968.0,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.28,
+     "players_seen": 5.3,
+     "players_inferred": 0.7
+    }
+   ]
+  },
+  {
+   "moment": 15,
+   "start": 2150.5,
+   "end": 2158.0,
+   "mid": 2154.0,
+   "v0_set": "3-1-2",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 1.0,
+   "settled_share": 0.0,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 2.7,
+   "players_inferred": 3.3
+  },
+  {
+   "moment": 16,
+   "start": 2180.0,
+   "end": 2185.0,
+   "mid": 2183.0,
+   "v0_set": "Other",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "Open",
+   "set_goal_first": "Open",
+   "set_display": "Open",
+   "confidence": 0.93,
+   "set_changes": [
+    "1-3-2",
+    "Open"
+   ],
+   "players_seen": 4.3,
+   "players_inferred": 1.7,
+   "inferred_from": {
+    "memory": 0.48,
+    "exit-edge": 0.0,
+    "unknown": 1.22
+   },
+   "frames_all_six_seen": 0.0,
+   "spots_released_for_subs": 0,
+   "open_spots_filled": 7,
+   "possession_changes": 1,
+   "camera_cuts": 0,
+   "settled_share": 0.66,
+   "yards_from_lines": 0.03,
+   "timeline": [
+    {
+     "frm": 2181.2,
+     "to": 2181.4,
+     "set": "1-3-2",
+     "set_goal_first": "2-3-1",
+     "confidence": 0.0,
+     "players_seen": 4.5,
+     "players_inferred": 1.5
+    },
+    {
+     "frm": 2181.5,
+     "to": 2185.0,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.93,
+     "players_seen": 4.3,
+     "players_inferred": 1.7
+    }
+   ]
+  },
+  {
+   "moment": 17,
+   "start": 2234.0,
+   "end": 2238.5,
+   "mid": 2237.5,
+   "v0_set": "3-1-2",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 1.0,
+   "settled_share": 0.0,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 5.6,
+   "players_inferred": 0.4
+  },
+  {
+   "moment": 18,
+   "start": 2250.5,
+   "end": 2259.0,
+   "mid": 2254.0,
+   "v0_set": "Other",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 0.96,
+   "settled_share": 0.04,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 5.6,
+   "players_inferred": 0.4
+  },
+  {
+   "moment": 19,
+   "start": 2280.5,
+   "end": 2297.5,
+   "mid": 2291.5,
+   "v0_set": "Other",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 0.89,
+   "settled_share": 0.11,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 3.2,
+   "players_inferred": 2.8
+  },
+  {
+   "moment": 20,
+   "start": 2498.8,
+   "end": 2525.3,
+   "mid": 2511.8,
+   "v0_set": "1-3-2",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "Open",
+   "set_goal_first": "Open",
+   "set_display": "Open",
+   "confidence": 0.75,
+   "set_changes": [
+    "Open",
+    "2-3-1",
+    "Open"
+   ],
+   "players_seen": 4.9,
+   "players_inferred": 1.1,
+   "inferred_from": {
+    "memory": 0.07,
+    "exit-edge": 0.05,
+    "unknown": 0.96
+   },
+   "frames_all_six_seen": 0.22,
+   "spots_released_for_subs": 2,
+   "open_spots_filled": 54,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.52,
+   "yards_from_lines": 0.08,
+   "timeline": [
+    {
+     "frm": 2498.8,
+     "to": 2504.3,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.75,
+     "players_seen": 3.9,
+     "players_inferred": 2.1
+    },
+    {
+     "frm": 2504.7,
+     "to": 2519.1,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.76,
+     "players_seen": 5.2,
+     "players_inferred": 0.8
+    },
+    {
+     "frm": 2519.2,
+     "to": 2524.2,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.71,
+     "players_seen": 4.8,
+     "players_inferred": 1.2
+    }
+   ]
+  },
+  {
+   "moment": 21,
+   "start": 2552.3,
+   "end": 2556.3,
+   "mid": 2554.8,
+   "v0_set": "2-3-1",
+   "v0_offense": "blue",
+   "offense": "white",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 1.0,
+   "settled_share": 0.0,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 4.1,
+   "players_inferred": 1.9
+  },
+  {
+   "moment": 22,
+   "start": 2579.8,
+   "end": 2590.3,
+   "mid": 2586.8,
+   "v0_set": "Open",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.0,
+   "set_changes": [
+    "2-3-1"
+   ],
+   "players_seen": 3.9,
+   "players_inferred": 2.1,
+   "inferred_from": {
+    "memory": 0.22,
+    "exit-edge": 0.0,
+    "unknown": 1.83
+   },
+   "frames_all_six_seen": 0.0,
+   "spots_released_for_subs": 1,
+   "open_spots_filled": 20,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.21,
+   "yards_from_lines": 0.13,
+   "timeline": [
+    {
+     "frm": 2579.8,
+     "to": 2588.1,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.0,
+     "players_seen": 3.9,
+     "players_inferred": 2.1
+    }
+   ]
+  },
+  {
+   "moment": 23,
+   "start": 2594.8,
+   "end": 2598.8,
+   "mid": 2595.8,
+   "v0_set": "Other",
+   "v0_offense": "blue",
+   "set": "Other",
+   "set_goal_first": "Other",
+   "set_display": "Other",
+   "confidence": 0.0,
+   "note": "offense unclear"
+  },
+  {
+   "moment": 24,
+   "start": 2669.8,
+   "end": 2677.8,
+   "mid": 2674.3,
+   "v0_set": "Other",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "Open",
+   "set_goal_first": "Open",
+   "set_display": "Open",
+   "confidence": 0.69,
+   "set_changes": [
+    "Open"
+   ],
+   "players_seen": 3.1,
+   "players_inferred": 2.9,
+   "inferred_from": {
+    "memory": 1.38,
+    "exit-edge": 0.0,
+    "unknown": 1.54
+   },
+   "frames_all_six_seen": 0.0,
+   "spots_released_for_subs": 2,
+   "open_spots_filled": 20,
+   "possession_changes": 1,
+   "camera_cuts": 0,
+   "settled_share": 0.2,
+   "yards_from_lines": 0.26,
+   "timeline": [
+    {
+     "frm": 2670.3,
+     "to": 2677.7,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.69,
+     "players_seen": 3.1,
+     "players_inferred": 2.9
+    }
+   ]
+  },
+  {
+   "moment": 25,
+   "start": 2759.3,
+   "end": 2769.3,
+   "mid": 2765.3,
+   "v0_set": "Other",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.25,
+   "set_changes": [
+    "2-3-1",
+    "2-3-1"
+   ],
+   "players_seen": 5.5,
+   "players_inferred": 0.5,
+   "inferred_from": {
+    "memory": 0.17,
+    "exit-edge": 0.0,
+    "unknown": 0.33
+   },
+   "frames_all_six_seen": 0.58,
+   "spots_released_for_subs": 3,
+   "open_spots_filled": 33,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.3,
+   "yards_from_lines": 0.08,
+   "timeline": [
+    {
+     "frm": 2764.6,
+     "to": 2767.3,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.25,
+     "players_seen": 5.6,
+     "players_inferred": 0.4
+    },
+    {
+     "frm": 2767.4,
+     "to": 2769.1,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.46,
+     "players_seen": 5.4,
+     "players_inferred": 0.6
+    }
+   ]
+  },
+  {
+   "moment": 26,
+   "start": 2812.8,
+   "end": 2828.3,
+   "mid": 2821.3,
+   "v0_set": "2-3-1",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "Open",
+   "set_goal_first": "Open",
+   "set_display": "Open",
+   "confidence": 0.6,
+   "set_changes": [
+    "Open",
+    "2-3-1",
+    "1-4-1",
+    "2-3-1"
+   ],
+   "players_seen": 4.6,
+   "players_inferred": 1.4,
+   "inferred_from": {
+    "memory": 0.1,
+    "exit-edge": 0.0,
+    "unknown": 1.35
+   },
+   "frames_all_six_seen": 0.23,
+   "spots_released_for_subs": 1,
+   "open_spots_filled": 11,
+   "possession_changes": 2,
+   "camera_cuts": 0,
+   "settled_share": 0.81,
+   "yards_from_lines": 0.0,
+   "timeline": [
+    {
+     "frm": 2812.8,
+     "to": 2819.6,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.6,
+     "players_seen": 4.6,
+     "players_inferred": 1.4
+    },
+    {
+     "frm": 2819.7,
+     "to": 2821.4,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.37,
+     "players_seen": 5.9,
+     "players_inferred": 0.1
+    },
+    {
+     "frm": 2821.6,
+     "to": 2824.1,
+     "set": "1-4-1",
+     "set_goal_first": "1-4-1",
+     "confidence": 0.7,
+     "players_seen": 4.1,
+     "players_inferred": 1.9
+    },
+    {
+     "frm": 2824.2,
+     "to": 2828.3,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.27,
+     "players_seen": 4.2,
+     "players_inferred": 1.8
+    }
+   ]
+  },
+  {
+   "moment": 27,
+   "start": 2866.8,
+   "end": 2892.8,
+   "mid": 2881.3,
+   "v0_set": "2-3-1",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.08,
+   "set_changes": [
+    "3-3",
+    "2-3-1",
+    "3-3"
+   ],
+   "players_seen": 5.6,
+   "players_inferred": 0.4,
+   "inferred_from": {
+    "memory": 0.0,
+    "exit-edge": 0.06,
+    "unknown": 0.31
+   },
+   "frames_all_six_seen": 0.65,
+   "spots_released_for_subs": 8,
+   "open_spots_filled": 78,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.24,
+   "yards_from_lines": 0.21,
+   "timeline": [
+    {
+     "frm": 2871.9,
+     "to": 2873.4,
+     "set": "3-3",
+     "set_goal_first": "3-3",
+     "confidence": 0.0,
+     "players_seen": 5.2,
+     "players_inferred": 0.8
+    },
+    {
+     "frm": 2873.7,
+     "to": 2881.7,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.08,
+     "players_seen": 5.4,
+     "players_inferred": 0.6
+    },
+    {
+     "frm": 2881.8,
+     "to": 2892.1,
+     "set": "3-3",
+     "set_goal_first": "3-3",
+     "confidence": 0.29,
+     "players_seen": 5.8,
+     "players_inferred": 0.2
+    }
+   ]
+  },
+  {
+   "moment": 28,
+   "start": 2901.3,
+   "end": 2905.3,
+   "mid": 2902.8,
+   "v0_set": "Open",
+   "v0_offense": "white",
+   "offense": "blue",
+   "set": "1-3-2",
+   "set_goal_first": "2-3-1",
+   "set_display": "1-3-2",
+   "confidence": 0.21,
+   "set_changes": [
+    "1-3-2"
+   ],
+   "players_seen": 4.3,
+   "players_inferred": 1.7,
+   "inferred_from": {
+    "memory": 0.68,
+    "exit-edge": 0.0,
+    "unknown": 1.0
+   },
+   "frames_all_six_seen": 0.11,
+   "spots_released_for_subs": 0,
+   "open_spots_filled": 9,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.58,
+   "yards_from_lines": 0.02,
+   "timeline": [
+    {
+     "frm": 2901.3,
+     "to": 2905.3,
+     "set": "1-3-2",
+     "set_goal_first": "2-3-1",
+     "confidence": 0.21,
+     "players_seen": 4.3,
+     "players_inferred": 1.7
+    }
+   ]
+  },
+  {
+   "moment": 29,
+   "start": 2960.8,
+   "end": 2967.3,
+   "mid": 2965.8,
+   "v0_set": "Open",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "3-3",
+   "set_goal_first": "3-3",
+   "set_display": "3-3",
+   "confidence": 0.26,
+   "set_changes": [
+    "3-3"
+   ],
+   "players_seen": 4.9,
+   "players_inferred": 1.1,
+   "inferred_from": {
+    "memory": 0.31,
+    "exit-edge": 0.0,
+    "unknown": 0.81
+   },
+   "frames_all_six_seen": 0.38,
+   "spots_released_for_subs": 4,
+   "open_spots_filled": 18,
+   "possession_changes": 0,
+   "camera_cuts": 2,
+   "settled_share": 0.3,
+   "yards_from_lines": 0.08,
+   "timeline": [
+    {
+     "frm": 2964.2,
+     "to": 2967.3,
+     "set": "3-3",
+     "set_goal_first": "3-3",
+     "confidence": 0.26,
+     "players_seen": 4.9,
+     "players_inferred": 1.1
+    }
+   ]
+  },
+  {
+   "moment": 30,
+   "start": 2977.8,
+   "end": 2988.8,
+   "mid": 2982.3,
+   "v0_set": "Open",
+   "v0_offense": "white",
+   "offense": "blue",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.41,
+   "set_changes": [
+    "2-3-1",
+    "2-2-2"
+   ],
+   "players_seen": 4.3,
+   "players_inferred": 1.7,
+   "inferred_from": {
+    "memory": 0.1,
+    "exit-edge": 0.78,
+    "unknown": 0.8
+   },
+   "frames_all_six_seen": 0.17,
+   "spots_released_for_subs": 1,
+   "open_spots_filled": 20,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.46,
+   "yards_from_lines": 0.08,
+   "timeline": [
+    {
+     "frm": 2977.8,
+     "to": 2984.9,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.41,
+     "players_seen": 4.4,
+     "players_inferred": 1.6
+    },
+    {
+     "frm": 2985.1,
+     "to": 2988.8,
+     "set": "2-2-2",
+     "set_goal_first": "2-2-2",
+     "confidence": 0.6,
+     "players_seen": 4.1,
+     "players_inferred": 1.9
+    }
+   ]
+  },
+  {
+   "moment": 31,
+   "start": 3015.3,
+   "end": 3037.8,
+   "mid": 3024.8,
+   "v0_set": "3-3",
+   "v0_offense": "blue",
+   "offense": "white",
+   "set": "Open",
+   "set_goal_first": "Open",
+   "set_display": "Open",
+   "confidence": 0.26,
+   "set_changes": [
+    "2-3-1",
+    "Open",
+    "3-3",
+    "Open"
+   ],
+   "players_seen": 5.9,
+   "players_inferred": 0.1,
+   "inferred_from": {
+    "memory": 0.02,
+    "exit-edge": 0.01,
+    "unknown": 0.08
+   },
+   "frames_all_six_seen": 0.9,
+   "spots_released_for_subs": 1,
+   "open_spots_filled": 13,
+   "possession_changes": 1,
+   "camera_cuts": 0,
+   "settled_share": 0.87,
+   "yards_from_lines": 0.03,
+   "timeline": [
+    {
+     "frm": 3015.3,
+     "to": 3017.2,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.15,
+     "players_seen": 6.0,
+     "players_inferred": 0.0
+    },
+    {
+     "frm": 3017.3,
+     "to": 3019.6,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.26,
+     "players_seen": 6.0,
+     "players_inferred": 0.0
+    },
+    {
+     "frm": 3019.7,
+     "to": 3034.7,
+     "set": "3-3",
+     "set_goal_first": "3-3",
+     "confidence": 0.49,
+     "players_seen": 5.9,
+     "players_inferred": 0.1
+    },
+    {
+     "frm": 3034.8,
+     "to": 3037.4,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.85,
+     "players_seen": 5.2,
+     "players_inferred": 0.8
+    }
+   ]
+  },
+  {
+   "moment": 32,
+   "start": 3124.5,
+   "end": 3129.0,
+   "mid": 3127.0,
+   "v0_set": "2-3-1",
+   "v0_offense": "blue",
+   "offense": "white",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.12,
+   "set_changes": [
+    "2-3-1"
+   ],
+   "players_seen": 4.2,
+   "players_inferred": 1.8,
+   "inferred_from": {
+    "memory": 0.19,
+    "exit-edge": 0.0,
+    "unknown": 1.56
+   },
+   "frames_all_six_seen": 0.0,
+   "spots_released_for_subs": 1,
+   "open_spots_filled": 40,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.43,
+   "yards_from_lines": 0.15,
+   "timeline": [
+    {
+     "frm": 3124.5,
+     "to": 3128.6,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.12,
+     "players_seen": 4.2,
+     "players_inferred": 1.8
+    }
+   ]
+  },
+  {
+   "moment": 33,
+   "start": 3396.5,
+   "end": 3408.5,
+   "mid": 3403.0,
+   "v0_set": "Open",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "3-1-2",
+   "set_goal_first": "2-1-3",
+   "set_display": "3-1-2",
+   "confidence": 0.55,
+   "set_changes": [
+    "3-1-2"
+   ],
+   "players_seen": 5.4,
+   "players_inferred": 0.6,
+   "inferred_from": {
+    "memory": 0.0,
+    "exit-edge": 0.1,
+    "unknown": 0.55
+   },
+   "frames_all_six_seen": 0.52,
+   "spots_released_for_subs": 5,
+   "open_spots_filled": 22,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.32,
+   "yards_from_lines": 0.0,
+   "timeline": [
+    {
+     "frm": 3396.6,
+     "to": 3408.4,
+     "set": "3-1-2",
+     "set_goal_first": "2-1-3",
+     "confidence": 0.55,
+     "players_seen": 5.4,
+     "players_inferred": 0.6
+    }
+   ]
+  },
+  {
+   "moment": 34,
+   "start": 3420.5,
+   "end": 3426.5,
+   "mid": 3425.0,
+   "v0_set": "1-3-2",
+   "v0_offense": "white",
+   "offense": "blue",
+   "set": "Open",
+   "set_goal_first": "Open",
+   "set_display": "Open",
+   "confidence": 0.79,
+   "set_changes": [
+    "Open"
+   ],
+   "players_seen": 4.7,
+   "players_inferred": 1.3,
+   "inferred_from": {
+    "memory": 0.67,
+    "exit-edge": 0.0,
+    "unknown": 0.67
+   },
+   "frames_all_six_seen": 0.17,
+   "spots_released_for_subs": 1,
+   "open_spots_filled": 9,
+   "possession_changes": 1,
+   "camera_cuts": 4,
+   "settled_share": 0.37,
+   "yards_from_lines": 0.0,
+   "timeline": [
+    {
+     "frm": 3422.8,
+     "to": 3426.5,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.79,
+     "players_seen": 4.7,
+     "players_inferred": 1.3
+    }
+   ]
+  },
+  {
+   "moment": 35,
+   "start": 4050.2,
+   "end": 4056.7,
+   "mid": 4054.2,
+   "v0_set": "2-3-1",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 0.92,
+   "settled_share": 0.08,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 5.6,
+   "players_inferred": 0.4
+  },
+  {
+   "moment": 36,
+   "start": 4061.2,
+   "end": 4070.7,
+   "mid": 4065.2,
+   "v0_set": "1-3-2",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 0.88,
+   "settled_share": 0.12,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 5.0,
+   "players_inferred": 1.0
+  },
+  {
+   "moment": 37,
+   "start": 4096.2,
+   "end": 4120.2,
+   "mid": 4107.7,
+   "v0_set": "Other",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.63,
+   "set_changes": [
+    "2-3-1",
+    "Open",
+    "3-3",
+    "2-2-2"
+   ],
+   "players_seen": 5.2,
+   "players_inferred": 0.8,
+   "inferred_from": {
+    "memory": 0.07,
+    "exit-edge": 0.45,
+    "unknown": 0.31
+   },
+   "frames_all_six_seen": 0.42,
+   "spots_released_for_subs": 2,
+   "open_spots_filled": 54,
+   "possession_changes": 3,
+   "camera_cuts": 1,
+   "settled_share": 0.44,
+   "yards_from_lines": 0.27,
+   "timeline": [
+    {
+     "frm": 4096.9,
+     "to": 4100.3,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.63,
+     "players_seen": 5.7,
+     "players_inferred": 0.3
+    },
+    {
+     "frm": 4100.4,
+     "to": 4102.1,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.66,
+     "players_seen": 4.4,
+     "players_inferred": 1.6
+    },
+    {
+     "frm": 4102.2,
+     "to": 4105.4,
+     "set": "3-3",
+     "set_goal_first": "3-3",
+     "confidence": 0.2,
+     "players_seen": 5.0,
+     "players_inferred": 1.0
+    },
+    {
+     "frm": 4105.7,
+     "to": 4119.8,
+     "set": "2-2-2",
+     "set_goal_first": "2-2-2",
+     "confidence": 0.29,
+     "players_seen": 5.2,
+     "players_inferred": 0.8
+    }
+   ]
+  },
+  {
+   "moment": 38,
+   "start": 4123.7,
+   "end": 4168.7,
+   "mid": 4148.7,
+   "v0_set": "2-3-1",
+   "v0_offense": "white",
+   "offense": "blue",
+   "set": "Open",
+   "set_goal_first": "Open",
+   "set_display": "Open",
+   "confidence": 0.99,
+   "set_changes": [
+    "Open",
+    "3-3",
+    "2-3-1",
+    "3-3",
+    "3-1-2",
+    "2-3-1",
+    "2-3-1",
+    "2-2-2"
+   ],
+   "players_seen": 5.7,
+   "players_inferred": 0.3,
+   "inferred_from": {
+    "memory": 0.17,
+    "exit-edge": 0.0,
+    "unknown": 0.09
+   },
+   "frames_all_six_seen": 0.78,
+   "spots_released_for_subs": 4,
+   "open_spots_filled": 20,
+   "possession_changes": 6,
+   "camera_cuts": 0,
+   "settled_share": 0.74,
+   "yards_from_lines": 0.01,
+   "timeline": [
+    {
+     "frm": 4124.1,
+     "to": 4127.3,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.99,
+     "players_seen": 5.1,
+     "players_inferred": 0.9
+    },
+    {
+     "frm": 4127.6,
+     "to": 4130.6,
+     "set": "3-3",
+     "set_goal_first": "3-3",
+     "confidence": 0.26,
+     "players_seen": 5.7,
+     "players_inferred": 0.3
+    },
+    {
+     "frm": 4130.7,
+     "to": 4139.2,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.08,
+     "players_seen": 5.5,
+     "players_inferred": 0.5
+    },
+    {
+     "frm": 4139.3,
+     "to": 4145.6,
+     "set": "3-3",
+     "set_goal_first": "3-3",
+     "confidence": 0.26,
+     "players_seen": 5.8,
+     "players_inferred": 0.2
+    },
+    {
+     "frm": 4145.7,
+     "to": 4150.1,
+     "set": "3-1-2",
+     "set_goal_first": "2-1-3",
+     "confidence": 0.26,
+     "players_seen": 6.0,
+     "players_inferred": 0.0
+    },
+    {
+     "frm": 4150.3,
+     "to": 4155.8,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.72,
+     "players_seen": 5.6,
+     "players_inferred": 0.4
+    },
+    {
+     "frm": 4155.9,
+     "to": 4166.3,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.48,
+     "players_seen": 6.0,
+     "players_inferred": 0.0
+    },
+    {
+     "frm": 4166.4,
+     "to": 4168.7,
+     "set": "2-2-2",
+     "set_goal_first": "2-2-2",
+     "confidence": 0.0,
+     "players_seen": 6.0,
+     "players_inferred": 0.0
+    }
+   ]
+  },
+  {
+   "moment": 39,
+   "start": 4238.2,
+   "end": 4242.2,
+   "mid": 4240.2,
+   "v0_set": "1-3-2",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 0.85,
+   "settled_share": 0.15,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 5.0,
+   "players_inferred": 1.0
+  },
+  {
+   "moment": 40,
+   "start": 4289.2,
+   "end": 4301.7,
+   "mid": 4294.7,
+   "v0_set": "3-3",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "3-3",
+   "set_goal_first": "3-3",
+   "set_display": "3-3",
+   "confidence": 0.26,
+   "set_changes": [
+    "3-3",
+    "2-3-1"
+   ],
+   "players_seen": 6.0,
+   "players_inferred": 0.0,
+   "inferred_from": {
+    "memory": 0.0,
+    "exit-edge": 0.0,
+    "unknown": 0.04
+   },
+   "frames_all_six_seen": 0.96,
+   "spots_released_for_subs": 4,
+   "open_spots_filled": 12,
+   "possession_changes": 0,
+   "camera_cuts": 3,
+   "settled_share": 0.24,
+   "yards_from_lines": 0.83,
+   "timeline": [
+    {
+     "frm": 4289.3,
+     "to": 4293.6,
+     "set": "3-3",
+     "set_goal_first": "3-3",
+     "confidence": 0.26,
+     "players_seen": 6.0,
+     "players_inferred": 0.0
+    },
+    {
+     "frm": 4293.7,
+     "to": 4300.2,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.21,
+     "players_seen": 5.9,
+     "players_inferred": 0.1
+    }
+   ]
+  },
+  {
+   "moment": 41,
+   "start": 4411.7,
+   "end": 4416.2,
+   "mid": 4413.2,
+   "v0_set": "Open",
+   "v0_offense": "white",
+   "offense": "blue",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 0.81,
+   "settled_share": 0.19,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 5.1,
+   "players_inferred": 0.9
+  },
+  {
+   "moment": 42,
+   "start": 4452.2,
+   "end": 4460.7,
+   "mid": 4455.7,
+   "v0_set": "Open",
+   "v0_offense": "blue",
+   "offense": "blue",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.49,
+   "set_changes": [
+    "1-4-1",
+    "2-3-1"
+   ],
+   "players_seen": 5.1,
+   "players_inferred": 0.9,
+   "inferred_from": {
+    "memory": 0.33,
+    "exit-edge": 0.0,
+    "unknown": 0.58
+   },
+   "frames_all_six_seen": 0.6,
+   "spots_released_for_subs": 4,
+   "open_spots_filled": 20,
+   "possession_changes": 1,
+   "camera_cuts": 0,
+   "settled_share": 0.8,
+   "yards_from_lines": 0.02,
+   "timeline": [
+    {
+     "frm": 4452.2,
+     "to": 4452.2,
+     "set": "1-4-1",
+     "set_goal_first": "1-4-1",
+     "confidence": 0.0,
+     "players_seen": 6.0,
+     "players_inferred": 0.0
+    },
+    {
+     "frm": 4452.3,
+     "to": 4460.4,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.49,
+     "players_seen": 5.1,
+     "players_inferred": 0.9
+    }
+   ]
+  },
+  {
+   "moment": 43,
+   "start": 4608.7,
+   "end": 4617.2,
+   "mid": 4611.7,
+   "v0_set": "Other",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "3-3",
+   "set_goal_first": "3-3",
+   "set_display": "3-3",
+   "confidence": 0.75,
+   "set_changes": [
+    "3-3",
+    "1-4-1"
+   ],
+   "players_seen": 4.5,
+   "players_inferred": 1.5,
+   "inferred_from": {
+    "memory": 0.37,
+    "exit-edge": 0.0,
+    "unknown": 1.14
+   },
+   "frames_all_six_seen": 0.26,
+   "spots_released_for_subs": 0,
+   "open_spots_filled": 7,
+   "possession_changes": 2,
+   "camera_cuts": 0,
+   "settled_share": 0.62,
+   "yards_from_lines": 0.1,
+   "timeline": [
+    {
+     "frm": 4608.7,
+     "to": 4614.2,
+     "set": "3-3",
+     "set_goal_first": "3-3",
+     "confidence": 0.75,
+     "players_seen": 4.7,
+     "players_inferred": 1.3
+    },
+    {
+     "frm": 4614.7,
+     "to": 4617.2,
+     "set": "1-4-1",
+     "set_goal_first": "1-4-1",
+     "confidence": 0.7,
+     "players_seen": 4.0,
+     "players_inferred": 2.0
+    }
+   ]
+  },
+  {
+   "moment": 44,
+   "start": 5523.8,
+   "end": 5530.3,
+   "mid": 5526.8,
+   "v0_set": "Open",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "Open",
+   "set_goal_first": "Open",
+   "set_display": "Open",
+   "confidence": 0.47,
+   "set_changes": [
+    "Open",
+    "2-2-2"
+   ],
+   "players_seen": 4.9,
+   "players_inferred": 1.1,
+   "inferred_from": {
+    "memory": 0.12,
+    "exit-edge": 0.0,
+    "unknown": 1.0
+   },
+   "frames_all_six_seen": 0.0,
+   "spots_released_for_subs": 0,
+   "open_spots_filled": 5,
+   "possession_changes": 2,
+   "camera_cuts": 0,
+   "settled_share": 0.45,
+   "yards_from_lines": 0.21,
+   "timeline": [
+    {
+     "frm": 5526.9,
+     "to": 5528.6,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.47,
+     "players_seen": 4.8,
+     "players_inferred": 1.2
+    },
+    {
+     "frm": 5528.7,
+     "to": 5530.3,
+     "set": "2-2-2",
+     "set_goal_first": "2-2-2",
+     "confidence": 0.0,
+     "players_seen": 4.9,
+     "players_inferred": 1.1
+    }
+   ]
+  },
+  {
+   "moment": 45,
+   "start": 5701.3,
+   "end": 5726.3,
+   "mid": 5715.8,
+   "v0_set": "2-3-1",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "Open",
+   "set_goal_first": "Open",
+   "set_display": "Open",
+   "confidence": 0.55,
+   "set_changes": [
+    "Open",
+    "2-3-1",
+    "1-3-2",
+    "Open",
+    "1-3-2",
+    "Open"
+   ],
+   "players_seen": 5.0,
+   "players_inferred": 1.0,
+   "inferred_from": {
+    "memory": 0.1,
+    "exit-edge": 0.04,
+    "unknown": 0.84
+   },
+   "frames_all_six_seen": 0.26,
+   "spots_released_for_subs": 3,
+   "open_spots_filled": 22,
+   "possession_changes": 3,
+   "camera_cuts": 0,
+   "settled_share": 0.93,
+   "yards_from_lines": 0.02,
+   "timeline": [
+    {
+     "frm": 5701.3,
+     "to": 5708.1,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.55,
+     "players_seen": 5.1,
+     "players_inferred": 0.9
+    },
+    {
+     "frm": 5708.2,
+     "to": 5714.2,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 1.0,
+     "players_seen": 5.4,
+     "players_inferred": 0.6
+    },
+    {
+     "frm": 5714.3,
+     "to": 5718.1,
+     "set": "1-3-2",
+     "set_goal_first": "2-3-1",
+     "confidence": 0.0,
+     "players_seen": 4.8,
+     "players_inferred": 1.2
+    },
+    {
+     "frm": 5718.2,
+     "to": 5721.1,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.85,
+     "players_seen": 5.0,
+     "players_inferred": 1.0
+    },
+    {
+     "frm": 5721.2,
+     "to": 5723.9,
+     "set": "1-3-2",
+     "set_goal_first": "2-3-1",
+     "confidence": 0.37,
+     "players_seen": 4.3,
+     "players_inferred": 1.7
+    },
+    {
+     "frm": 5724.2,
+     "to": 5726.3,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.46,
+     "players_seen": 4.4,
+     "players_inferred": 1.6
+    }
+   ]
+  },
+  {
+   "moment": 46,
+   "start": 5854.8,
+   "end": 5860.3,
+   "mid": 5858.8,
+   "v0_set": "Open",
+   "v0_offense": "white",
+   "offense": "blue",
+   "set": "Open",
+   "set_goal_first": "Open",
+   "set_display": "Open",
+   "confidence": 0.57,
+   "set_changes": [
+    "Open"
+   ],
+   "players_seen": 3.6,
+   "players_inferred": 2.4,
+   "inferred_from": {
+    "memory": 0.57,
+    "exit-edge": 0.07,
+    "unknown": 1.71
+   },
+   "frames_all_six_seen": 0.0,
+   "spots_released_for_subs": 0,
+   "open_spots_filled": 5,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.31,
+   "yards_from_lines": 0.22,
+   "timeline": [
+    {
+     "frm": 5854.8,
+     "to": 5859.6,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.57,
+     "players_seen": 3.6,
+     "players_inferred": 2.4
+    }
+   ]
+  },
+  {
+   "moment": 47,
+   "start": 5872.3,
+   "end": 5883.3,
+   "mid": 5876.8,
+   "v0_set": "2-3-1",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "3-1-2",
+   "set_goal_first": "2-1-3",
+   "set_display": "3-1-2",
+   "confidence": 0.7,
+   "set_changes": [
+    "2-3-1",
+    "3-1-2",
+    "2-3-1",
+    "Open"
+   ],
+   "players_seen": 4.5,
+   "players_inferred": 1.5,
+   "inferred_from": {
+    "memory": 0.33,
+    "exit-edge": 0.11,
+    "unknown": 1.06
+   },
+   "frames_all_six_seen": 0.11,
+   "spots_released_for_subs": 0,
+   "open_spots_filled": 18,
+   "possession_changes": 1,
+   "camera_cuts": 0,
+   "settled_share": 0.61,
+   "yards_from_lines": 0.03,
+   "timeline": [
+    {
+     "frm": 5872.3,
+     "to": 5873.3,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.0,
+     "players_seen": 3.7,
+     "players_inferred": 2.3
+    },
+    {
+     "frm": 5873.4,
+     "to": 5875.4,
+     "set": "3-1-2",
+     "set_goal_first": "2-1-3",
+     "confidence": 0.7,
+     "players_seen": 4.0,
+     "players_inferred": 2.0
+    },
+    {
+     "frm": 5875.7,
+     "to": 5879.3,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.38,
+     "players_seen": 4.7,
+     "players_inferred": 1.3
+    },
+    {
+     "frm": 5879.4,
+     "to": 5882.2,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.84,
+     "players_seen": 4.8,
+     "players_inferred": 1.2
+    }
+   ]
+  },
+  {
+   "moment": 48,
+   "start": 5981.3,
+   "end": 5985.3,
+   "mid": 5983.3,
+   "v0_set": "Other",
+   "v0_offense": "blue",
+   "offense": "white",
+   "set": "Skip",
+   "set_goal_first": "Skip",
+   "set_display": "Skip",
+   "confidence": 0.85,
+   "settled_share": 0.15,
+   "note": "offense not settled (moving or fewer than 4 in the zone)",
+   "timeline": [],
+   "players_seen": 3.2,
+   "players_inferred": 2.8
+  },
+  {
+   "moment": 49,
+   "start": 6012.8,
+   "end": 6016.8,
+   "mid": 6014.8,
+   "v0_set": "Other",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.76,
+   "set_changes": [
+    "Open",
+    "2-3-1"
+   ],
+   "players_seen": 4.4,
+   "players_inferred": 1.6,
+   "inferred_from": {
+    "memory": 0.12,
+    "exit-edge": 0.0,
+    "unknown": 1.46
+   },
+   "frames_all_six_seen": 0.0,
+   "spots_released_for_subs": 1,
+   "open_spots_filled": 6,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.79,
+   "yards_from_lines": 0.03,
+   "timeline": [
+    {
+     "frm": 6012.8,
+     "to": 6014.2,
+     "set": "Open",
+     "set_goal_first": "Open",
+     "confidence": 0.7,
+     "players_seen": 3.7,
+     "players_inferred": 2.3
+    },
+    {
+     "frm": 6014.3,
+     "to": 6016.8,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.76,
+     "players_seen": 4.9,
+     "players_inferred": 1.1
+    }
+   ]
+  },
+  {
+   "moment": 50,
+   "start": 6021.3,
+   "end": 6038.3,
+   "mid": 6031.8,
+   "v0_set": "2-3-1",
+   "v0_offense": "white",
+   "offense": "white",
+   "set": "2-3-1",
+   "set_goal_first": "1-3-2",
+   "set_display": "2-3-1",
+   "confidence": 0.44,
+   "set_changes": [
+    "3-1-2",
+    "2-3-1"
+   ],
+   "players_seen": 4.9,
+   "players_inferred": 1.1,
+   "inferred_from": {
+    "memory": 0.08,
+    "exit-edge": 0.0,
+    "unknown": 1.02
+   },
+   "frames_all_six_seen": 0.18,
+   "spots_released_for_subs": 2,
+   "open_spots_filled": 24,
+   "possession_changes": 0,
+   "camera_cuts": 0,
+   "settled_share": 0.62,
+   "yards_from_lines": 0.01,
+   "timeline": [
+    {
+     "frm": 6022.2,
+     "to": 6022.9,
+     "set": "3-1-2",
+     "set_goal_first": "2-1-3",
+     "confidence": 0.34,
+     "players_seen": 4.8,
+     "players_inferred": 1.2
+    },
+    {
+     "frm": 6023.1,
+     "to": 6038.3,
+     "set": "2-3-1",
+     "set_goal_first": "1-3-2",
+     "confidence": 0.44,
+     "players_seen": 4.9,
+     "players_inferred": 1.1
+    }
+   ]
+  }
+ ]
+}

@@ -31,3 +31,14 @@ Calls are stored **top-first** (Crown Point convention, from the restraining lin
 - Roboflow100-VL `lacrosse-object-detection` (Goalie, Longpole, Referee, Shortstick): the dataset README states **License: MIT**. It's pulled from the Hugging Face mirror `gatilin/rf100-vl`, so no Roboflow key is needed. Used by `pipeline/train_lax.py` / `train-lax.yml`.
 - Tactix (soccer tactical engine, GPL-3.0): used as the design model only. No code copied.
 - scikit-learn, OpenCV, NumPy: BSD/Apache.
+
+## v1 (tracking + spot memory) — status on the dev game
+
+`python pipeline/analyze_v1.py <game> [--matcher bands|2d]` reads one set per settled possession from the v1 tracks,
+holding six offensive *spots* (not people) through off-screen gaps and subs, and calls `Skip` when the offense
+isn't settled. `python pipeline/score.py <moments.json> <answers.json>` scores it against Brian's frame key or his
+50-clip review. On Scituate–Hanover: possession sets 9/44 (v0 10/44; always guessing 2-3-1 would get 13/44),
+Skip 5/6 (v0 0/6), offense team 16/20 (same). Spot memory changes the score by about one possession. The blocker is
+geometry: from one broadcast angle the across-field position of each player isn't measured well enough to tell
+wings from crease players, so 1-4-1 / 2-3-1 / Open can't be separated by rules. Next step is a model trained on
+labeled clips rather than more rules.
