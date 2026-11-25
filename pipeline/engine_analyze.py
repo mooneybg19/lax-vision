@@ -691,3 +691,26 @@ quality.update(frames=tot, frames_mapped=mapped, frames_mapped_share=round(mappe
                possessions=len(out_poss), seconds_analysis=round(time.time() - T0))
 json.dump(quality, open(os.path.join(OUT, "quality.json"), "w"), indent=1)
 print(json.dumps({k: v for k, v in quality.items() if k != "chunks"}, indent=1))
+
+# ------------------------------------------------------------------ plain-language summary
+comp = sum((c.get("seconds_compute") or 0) for c in quality["chunks"])
+game_min = (chunks[-1]["meta"]["t_end"] - chunks[0]["meta"]["t_start"]) / 60
+ev_count = {}
+for e in events:
+    ev_count[e["type"]] = ev_count.get(e["type"], 0) + 1
+set_count = {}
+for p_ in out_poss:
+    set_count[p_["set"]] = set_count.get(p_["set"], 0) + 1
+lines = [f"# Engine run: {a.game}", "",
+         f"- Film covered: {game_min:.0f} minutes in {len(chunks)} time-ordered chunks at {FPS:g} frames a second.",
+         f"- Compute: {comp / 60:.0f} CPU-minutes for extraction ({comp / 60 / max(game_min, 1):.1f} per game minute) + {quality['seconds_analysis']} s analysis.",
+         f"- Field mapping: {quality['frames_mapped_share'] * 100:.0f}% of frames have a field fit "
+         f"(goal mouth maps to {quality['goal_width_yd']} yd, true 2 yd; neighbouring fits 1 s apart disagree by "
+         f"{quality['neighbour_disagreement_yd']} yd). {quality['players_mapped_share'] * 100:.0f}% of player sightings are on the radar.",
+         f"- Teams: {team_color[0]} vs {team_color[1]} ({team_method}).",
+         f"- Players: {len(players)} stitched tracks with physical data (one athlete can be several tracks until jersey numbers are attached).",
+         f"- Possessions: {len(out_poss)} settled possessions; sets: " + ", ".join(f"{k} {v}" for k, v in sorted(set_count.items(), key=lambda z: -z[1])) + ".",
+         "- Events: " + ", ".join(f"{k} {v}" for k, v in ev_count.items()) + ".",
+         "", "Confidence notes are in events.json; field-mapping failure reasons are in quality.json."]
+open(os.path.join(OUT, "summary.md"), "w").write("\n".join(lines) + "\n")
+print("\n".join(lines))

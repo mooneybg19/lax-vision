@@ -42,3 +42,37 @@ Skip 5/6 (v0 0/6), offense team 16/20 (same). Spot memory changes the score by a
 geometry: from one broadcast angle the across-field position of each player isn't measured well enough to tell
 wings from crease players, so 1-4-1 / 2-3-1 / Open can't be separated by rules. Next step is a model trained on
 labeled clips rather than more rules.
+
+## Engine (whole game) — v2
+
+The hub direction: upload a game, it is processed after the fact, and everything below is available with the video.
+
+1. `pipeline/engine_extract.py` (Actions, `engine.yml`): the whole game in time-ordered chunks (default 20 in parallel,
+   3 fps, 1280 wide, chunks overlap 4 s). Per frame: YOLO11 player boxes + BoT-SORT track ids (ReID), the lacrosse
+   detector's role (Goalie/Longpole/Referee/Shortstick), torso color, stripes, camera motion, the goal; once a second the
+   painted line segments and near sideline. After the chunk, up to 3 crops per track go through SigLIP. Raw output:
+   `results/<game>-engine-raw/chunk_NNN/{dets.npz,frames.json}`.
+2. `pipeline/engine_analyze.py <game> [--colors white,blue]` (any machine, minutes): field mapping, stitching, teams,
+   radar, events, player data, sets. Output in `results/<game>-engine/`:
+   - `field.json` — men's field in yards for drawing (x from the left end line 0..110, y from the near sideline;
+     goals at x=15 and x=95, y=26.67).
+   - `radar/chunk_NNN.json` — per frame `[player, x, y, team, role, seen]`; `seen=0` is a remembered off-screen spot.
+   - `possessions.json` / `sets.json` — settled possessions: field end, offense team, set (top-first, plus
+     `set_goal_first`), smoothed set timeline, man-up flag. `sets.json` is in the shape `pipeline/score.py` reads.
+   - `events.json` — faceoffs (and which team came out with the ball), goals (a faceoff that is not a period start),
+     man-up periods (6 attackers seen, never more than 5 defenders), clears/rides and re-settles between possessions.
+     Every event carries a confidence word.
+   - `players.json` — per stitched track: team, role, seconds mapped, distance, sprints (>6 yd/s), top speed,
+     10-yd heatmap; team heatmaps flipped so each team attacks right.
+   - `quality.json`, `summary.md` — coverage, error checks, failure reasons, timing.
+
+Field mapping (`pipeline/field_geom.py`, from `fieldh_v2.py`): on shared turf the football grid (a line every 5 yards),
+the thick near sideline and the goal give one image→field homography per keyframe (direct linear fit, no camera
+model). Each frame borrows the nearest good keyframe in the same camera shot (≤10 s) through the frame-to-frame camera
+motion. Checks: the goal mouth must map to 0.7–4.5 yd (true 2 yd) and 80% of players must land on the field; the
+report gives the median mapped goal width and how much fits 1 s apart disagree. Fields without the football grid get
+no field map yet (fallback to lacrosse lines/creases is not built).
+
+Team split follows the roboflow/sports recipe (SigLIP embeddings → UMAP → KMeans), with torso-color fallback.
+Set reading is template matching (Tactix-style) on the radar with 2 s smoothing; Tactix code is not copied.
+No ball tracking yet: shots, saves, ground balls, assists are out of scope for this round.
