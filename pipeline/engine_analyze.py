@@ -3,7 +3,7 @@
 Reads the time-ordered chunks from engine pass 1 (results/<game>-engine-raw/chunk_NNN) and writes
 results/<game>-engine/:
   field.json        men's lacrosse field (yards) for drawing, plus the coordinate convention
-  radar/chunk_NNN.json  every mapped player per frame: [player, x, y, team, role, seen]
+  radar/chunk_NNN.json  every frame: [player, x, y, team, role, seen, quality] (always on, flagged by quality)
   possessions.json  settled possessions: end, offense team, start/end, set call + timeline
   events.json       faceoffs (+ which team came out with it), goals, man-up/man-down, clears/rides
   sets.json         set call per settled possession (top-first; Skip when not settled)
@@ -123,6 +123,7 @@ for C in chunks:
             good[i] = (Hk, info)
     # each frame borrows the nearest good keyframe in the same shot (within 4 s)
     Hf = [None] * n
+    Qf = [0.0] * n
     K = sorted(good)
     Karr = np.array(K) if K else np.zeros(0, int)
     for i in range(n):
@@ -134,6 +135,7 @@ for C in chunks:
         k = int(cand[np.argmin(np.abs(cand - i))])
         Hm = good[k][0] @ np.linalg.inv(Hc[k]) @ Hc[i]
         Hf[i] = Hm / Hm[2, 2]
+        Qf[i] = 1.0 if abs(k - i) <= 3 * FPS else 0.7
     # checks: goal mouth width (posts 6 ft = 2 yd apart) mapped through the frame's homography;
     # neighbouring keyframes (1 s apart, same shot) agreeing on where a player's feet are
     gw = []
@@ -154,7 +156,7 @@ for C in chunks:
         for r in rows[:12]:
             fx, fy = (r[3] + r[5]) / 2, r[6]
             dis.append(float(np.linalg.norm(apply(Ha, fx, fy) - apply(good[k2][0], fx, fy))))
-    C["Hf"], C["shot"] = Hf, shot
+    C["Hf"], C["shot"], C["Qf"], C["goodK"] = Hf, shot, Qf, K
     quality["chunks"].append(dict(chunk=os.path.basename(C["dir"]), frames=n, keyframes=len(keys), keyframes_ok=len(good),
                                   frames_mapped=int(sum(h is not None for h in Hf)), fails=fails,
                                   goal_width_yd_median=round(float(np.median(gw)), 2) if gw else None,
@@ -196,6 +198,40 @@ for ci in range(1, len(chunks)):
             if iou[j] > 0.6 and ra[j, 2] >= 0:
                 union((ci - 1, int(ra[j, 2])), (ci, int(r[2])))
 
+# ------------------------------------------------------------------ 2b. goal-anchored fallback (learned from fitted frames)
+# Where no full field fit exists but the goal is in view, place players relative to the goal: offsets measured in
+# each player's own height (about 2 yd), scaled by factors learned from the frames that do have a full fit. Low camera
+# angles squash depth, which the learned depth factor absorbs.
+def goal_feats(r, gb):
+    h = max(r[6] - r[4], 1.0)
+    gx, gy = (gb[0] + gb[2]) / 2, gb[3]
+    return ((r[3] + r[5]) / 2 - gx) / h * 2.0, (r[6] - gy) / h * 2.0
+
+
+fx_l, fy_l, X_l, Y_l = [], [], [], []
+for C in chunks:
+    fr = C["meta"]["frames"]
+    for i in C["goodK"]:
+        gb = fr[i].get("goal")
+        if not gb:
+            continue
+        for r in C["dets"][(C["dets"][:, 0] == i) & (C["dets"][:, 8] > 0)]:
+            Xg, Yg = apply(C["Hf"][i], (r[3] + r[5]) / 2, r[6])
+            if abs(Xg) < 40 and -5 < Yg < 58:
+                f1, f2 = goal_feats(r, gb)
+                fx_l.append(f1); fy_l.append(f2); X_l.append(Xg); Y_l.append(Yg - fg.GOAL_Y)
+GA = None
+if len(fx_l) >= 30:
+    fx_a, fy_a, X_a, Y_a = map(np.array, (fx_l, fy_l, X_l, Y_l))
+    ax = float(np.dot(fx_a, X_a) / np.dot(fx_a, fx_a)); ay = float(np.dot(fy_a, Y_a) / np.dot(fy_a, fy_a))
+    rx = float(np.median(np.abs(ax * fx_a - X_a))); ry = float(np.median(np.abs(ay * fy_a - Y_a)))
+    GA = (ax, ay)
+    quality["goal_anchored_model"] = dict(along=round(ax, 2), depth=round(ay, 2), samples=len(fx_l),
+                                          median_error_yd=[round(rx, 1), round(ry, 1)])
+else:
+    quality["goal_anchored_model"] = dict(samples=len(fx_l), note="too few fitted frames with a goal; default factors used")
+    GA = (1.0, -3.0)
+
 # ------------------------------------------------------------------ 3. one table of observations for the game
 obs = []   # t, gid, x, y, mapped, role, stripes, turf, ph, box h, chunk, frame
 gid_of = {}
@@ -212,11 +248,16 @@ for ci, C in enumerate(chunks):
         key = find((ci, int(r[2])))
         gid = gid_of.setdefault(key, len(gid_of))
         Hm = C["Hf"][fi]
+        gb = fr[fi].get("goal")
+        q = 0.0
         if Hm is not None and r[8] > 0:
-            X, Y = apply(Hm, (r[3] + r[5]) / 2, r[6]); mapped = 1
+            X, Y = apply(Hm, (r[3] + r[5]) / 2, r[6]); mapped = 1; q = C["Qf"][fi]
+        elif gb and r[8] > 0:                      # goal-anchored estimate
+            f1, f2 = goal_feats(r, gb)
+            X, Y = GA[0] * f1, fg.GOAL_Y + GA[1] * f2; mapped = 1; q = 0.4
         else:
             X, Y, mapped = np.nan, np.nan, 0
-        obs.append([t, gid, X, Y, mapped, r[10], r[9], r[8], fr[fi]["ph"], r[6] - r[4], ci, fi])
+        obs.append([t, gid, X, Y, mapped, r[10], r[9], r[8], fr[fi]["ph"], r[6] - r[4], ci, fi, q])
         feats.setdefault(gid, []).append(r[11:27])
 O = np.array(obs, np.float64)
 NG = len(gid_of)
@@ -344,7 +385,11 @@ role_of = np.array([P[int(g)]["role"] for g in O[:, 1]])
 quality["team_split"] = dict(method=team_method, colors=team_color, players=len(labels))
 
 # ------------------------------------------------------------------ 6. per-frame state on a common clock
-times = np.unique(np.round(O[:, 0], 2))
+all_ft = []
+for ci, C in enumerate(chunks):
+    t_hi = chunks[ci + 1]["meta"]["t_start"] if ci + 1 < len(chunks) else 1e9
+    all_ft += [f["t"] for f in C["meta"]["frames"] if f["t"] < t_hi]
+times = np.unique(np.round(np.array(all_ft), 2))
 frames = {}
 order = np.argsort(O[:, 0], kind="stable")
 for i in order:
@@ -360,7 +405,7 @@ for t in times:
     for i in vis:
         g = int(O[i, 1]); seen.add(g)
         last_pos[g] = (t, absx[i], absy[i])
-        rows.append([g, round(float(absx[i]), 1), round(float(absy[i]), 1), int(team_of[i]), P[g]["role"], 1])
+        rows.append([g, round(float(absx[i]), 1), round(float(absy[i]), 1), int(team_of[i]), P[g]["role"], 1, round(float(O[i, 12]), 2)])
     xs = [r[1] for r in rows]
     end = None
     if len(xs) >= 4:
@@ -375,8 +420,13 @@ for t in times:
             if g in seen or t - tl > 6:
                 continue
             if (end == "L" and x < GOALS["L"] + RESTRAIN + 3) or (end == "R" and x > GOALS["R"] - RESTRAIN - 3):
-                rows.append([g, round(float(x), 1), round(float(y), 1), P[g]["team"], P[g]["role"], 0])
-    state.append(dict(t=float(t), end=end, rows=rows))
+                rows.append([g, round(float(x), 1), round(float(y), 1), P[g]["team"], P[g]["role"], 0, 0.3])
+    elif not rows:      # nothing mapped this frame (camera on the crowd, a cut, a replay): keep the last picture, flagged
+        for g, (tl, x, y) in list(last_pos.items()):
+            if t - tl <= 10:
+                rows.append([g, round(float(x), 1), round(float(y), 1), P[g]["team"], P[g]["role"], 0, 0.1])
+    fq = round(float(np.mean([r[6] for r in rows])), 2) if rows else 0.0
+    state.append(dict(t=float(t), end=end, rows=rows, q=fq))
 print(f"state built {time.time() - T0:.0f}s", flush=True)
 
 # radar chunks (one file per engine chunk, time-ordered)
@@ -384,8 +434,10 @@ bounds = [C["meta"]["t_start"] for C in chunks[1:]] + [1e9]
 for ci in range(len(chunks)):
     lo = chunks[ci]["meta"]["t_start"] if ci else -1
     sel = [s for s in state if lo <= s["t"] < bounds[ci]]
-    json.dump(dict(fps=FPS, teams=team_color, columns=["player", "x", "y", "team", "role", "seen"],
-                   frames=[dict(t=round(s["t"], 2), p=s["rows"]) for s in sel]),
+    json.dump(dict(fps=FPS, teams=team_color, columns=["player", "x", "y", "team", "role", "seen", "quality"],
+                   quality_note="quality per row: 1.0 full field fit near a calibrated keyframe, 0.7 fit borrowed up to 10 s away, "
+                                "0.4 goal-anchored estimate, 0.3 remembered off-screen spot, 0.1 last known picture (nothing mapped now)",
+                   frames=[dict(t=round(s["t"], 2), q=s["q"], p=s["rows"]) for s in sel]),
               open(os.path.join(OUT, "radar", f"chunk_{ci:03d}.json"), "w"), separators=(",", ":"))
 
 # ------------------------------------------------------------------ 7. possessions (settled play at one end)
@@ -407,14 +459,15 @@ poss = []
 for sg in segs:
     d = {0: [], 1: []}
     for s in sg["st"]:
-        for g, x, y, tm, rl, seen in s["rows"]:
+        for g, x, y, tm, rl, seen, q_ in s["rows"]:
             if tm in (0, 1) and rl != "goalie" and seen:
                 d[tm].append(abs(x - gx_(sg["end"])) + 0.0)
     if not d[0] or not d[1]:
         off = None
     else:
         off = 0 if np.median(d[0]) > np.median(d[1]) else 1      # defense sits between the offense and the goal
-    poss.append(dict(end=sg["end"], start=round(sg["t0"], 1), end_t=round(sg["t1"], 1), offense=off, st=sg["st"]))
+    poss.append(dict(end=sg["end"], start=round(sg["t0"], 1), end_t=round(sg["t1"], 1), offense=off, st=sg["st"],
+                     field_quality=round(float(np.mean([s["q"] for s in sg["st"]])), 2)))
 
 # ------------------------------------------------------------------ 8. faceoffs (image pattern, no field map needed)
 fo_score = []
@@ -553,7 +606,7 @@ for p in poss:
     costs, used, prev = [], 0, None
     speeds = []
     for s in p["st"]:
-        pts = [(sgn * (x - gxx), (y - GOAL_Y) * sgn) for g, x, y, tm, rl, sn in s["rows"] if tm == o]
+        pts = [(sgn * (x - gxx), (y - GOAL_Y) * sgn) for g, x, y, tm, rl, sn, q_ in s["rows"] if tm == o]
         pts = [q for q in pts if -15 < q[0] < 30]
         if len(pts) < 5:
             continue
@@ -600,7 +653,9 @@ for k, p in enumerate(poss):
                          offense=team_color[p["offense"]] if p["offense"] is not None else None,
                          set=p["set"], set_goal_first=goal_first(p["set"]), set_cost=p.get("set_cost"),
                          timeline=p["timeline"], man_up=bool(p.get("man_up")),
-                         max_offense_seen=p.get("max_offense_seen"), max_defense_seen=p.get("max_defense_seen")))
+                         max_offense_seen=p.get("max_offense_seen"), max_defense_seen=p.get("max_defense_seen"),
+                         field_quality=p["field_quality"],
+                         confidence="high" if p["field_quality"] >= 0.8 else ("medium" if p["field_quality"] >= 0.5 else "low")))
 json.dump(dict(possessions=out_poss), open(os.path.join(OUT, "possessions.json"), "w"), indent=0)
 json.dump(dict(moments=out_poss), open(os.path.join(OUT, "sets.json"), "w"), indent=0)
 json.dump(dict(teams=team_color, events=events), open(os.path.join(OUT, "events.json"), "w"), indent=0)
@@ -629,8 +684,9 @@ for g in range(NG):
     m = (O[:, 1] == g) & np.isfinite(absx)
     if m.sum() < 6:
         continue
-    t = O[m, 0]; x = absx[m]; y = absy[m]
-    o_ = np.argsort(t); t, x, y = t[o_], x[o_], y[o_]
+    t = O[m, 0]; x = absx[m]; y = absy[m]; qv = O[m, 12]
+    o_ = np.argsort(t); t, x, y, qv = t[o_], x[o_], y[o_], qv[o_]
+    good_share = float((qv >= 0.7).mean())
     # light smoothing (3-frame median) against box jitter
     if len(x) >= 3:
         x = np.array([np.median(x[max(0, i - 1):i + 2]) for i in range(len(x))])
@@ -643,7 +699,10 @@ for g in range(NG):
     top = float(np.percentile(sp[okm], 98)) if okm.sum() >= 5 else 0.0
     fast = (sp > 6.0) & okm
     sprints = int(np.sum(np.diff(np.concatenate([[0], fast.astype(int), [0]])) == 1))
-    hm = np.histogram2d(np.clip(y, 0, FIELD_W - 0.01), np.clip(x, 0, FIELD_L - 0.01), bins=[6, 11],
+    gm = qv >= 0.7
+    hm = np.histogram2d(np.clip(y[gm], 0, FIELD_W - 0.01), np.clip(x[gm], 0, FIELD_L - 0.01), bins=[6, 11],
+                        range=[[0, FIELD_W], [0, FIELD_L]])[0]
+    hc = np.histogram2d(np.clip(y, 0, FIELD_W - 0.01), np.clip(x, 0, FIELD_L - 0.01), bins=[3, 3],
                         range=[[0, FIELD_W], [0, FIELD_L]])[0]
     tm = P[g]["team"]
     if tm in (0, 1):
@@ -655,11 +714,15 @@ for g in range(NG):
                         first_seen=round(float(t[0]), 1), last_seen=round(float(t[-1]), 1),
                         seconds_mapped=round(float(len(t) / FPS), 1), distance_yd=round(dist, 1),
                         distance_m=round(dist * YD2M, 1), top_speed_mps=round(top * YD2M, 2), sprints=sprints,
-                        heatmap=hm.astype(int).tolist()))
+                        field_quality=round(float(qv.mean()), 2), good_fit_share=round(good_share, 2),
+                        physical_confidence="ok" if good_share >= 0.6 else "low (rough field fit; distances and speeds are estimates)",
+                        heatmap_resolution="fine" if gm.sum() >= 30 else "coarse",
+                        heatmap_fine=hm.astype(int).tolist(), heatmap_coarse=hc.astype(int).tolist()))
 players.sort(key=lambda r: -r["seconds_mapped"])
-json.dump(dict(note="Players are stitched tracks, not people yet: one athlete can appear as several tracks. Heatmap rows = "
-               "6 bands from the near sideline, columns = 11 bands of 10 yd from the left end line. Team heatmaps are "
-               "flipped so each team attacks to the right.",
+json.dump(dict(note="Players are stitched tracks, not people yet: one athlete can appear as several tracks. heatmap_fine "
+               "(good field fit only): rows = 6 bands from the near sideline, columns = 11 bands of 10 yd from the left end "
+               "line. heatmap_coarse (every estimate): 3 lanes x 3 thirds. heatmap_resolution says which one to show. Team "
+               "heatmaps are flipped so each team attacks to the right.",
                teams=team_color, team_heatmaps={team_color[k]: heat_team[k].astype(int).tolist() for k in (0, 1)},
                players=players), open(os.path.join(OUT, "players.json"), "w"), separators=(",", ":"))
 
