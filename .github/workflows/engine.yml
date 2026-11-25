@@ -1,0 +1,63 @@
+name: engine pass 1 (whole game, time-ordered chunks)
+
+on:
+  workflow_dispatch:
+    inputs:
+      game:
+        description: "game file name in games/ (no .json)"
+        default: "scituate-hanover-2024"
+      parts:
+        description: "how many time-ordered chunks (run in parallel)"
+        default: "16"
+      fps:
+        description: "frames per second"
+        default: "3"
+      limit:
+        description: "debug: seconds per chunk (0 = all)"
+        default: "0"
+
+permissions:
+  contents: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      parts: ${{ steps.p.outputs.parts }}
+    steps:
+      - id: p
+        run: python3 -c "import json;print('parts='+json.dumps(list(range(int('${{ inputs.parts }}')))))" >> "$GITHUB_OUTPUT"
+
+  extract:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        part: ${{ fromJson(needs.plan.outputs.parts) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+          pip install ultralytics lap opencv-python-headless numpy transformers sentencepiece protobuf
+      - name: Extract
+        run: |
+          P=$(printf "%03d" ${{ matrix.part }})
+          python pipeline/engine_extract.py games/${{ inputs.game }}.json work/chunk_$P --part ${{ matrix.part }} --parts ${{ inputs.parts }} --fps ${{ inputs.fps }} --limit ${{ inputs.limit }}
+      - name: Save chunk
+        run: |
+          P=$(printf "%03d" ${{ matrix.part }})
+          mkdir -p results/${{ inputs.game }}-engine-raw
+          rm -f work/chunk_$P/botsort.yaml
+          cp -r work/chunk_$P results/${{ inputs.game }}-engine-raw/
+          git config user.name "lax-pipeline"
+          git config user.email "lax-pipeline@users.noreply.github.com"
+          git add results/${{ inputs.game }}-engine-raw/chunk_$P
+          git commit -m "engine raw chunk $P: ${{ inputs.game }} [skip ci]" || exit 0
+          for i in 1 2 3 4 5 6 7 8; do git pull --rebase origin main && git push && break; sleep $((RANDOM % 20 + 5)); done
