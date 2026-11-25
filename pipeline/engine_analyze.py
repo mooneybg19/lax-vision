@@ -28,6 +28,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("game")
 ap.add_argument("--raw", default=None)
 ap.add_argument("--out", default=None)
+ap.add_argument("--fit-only", default="", help="compute and cache the field fit for these chunk numbers (e.g. 000,001) and stop")
 ap.add_argument("--colors", default="", help="optional team names typed by the coach, e.g. white,blue")
 a = ap.parse_args()
 RAW = a.raw or f"results/{a.game}-engine-raw"
@@ -46,7 +47,15 @@ chunks = []
 for d in sorted(glob.glob(os.path.join(RAW, "chunk_*"))):
     meta = json.load(open(os.path.join(d, "frames.json")))
     z = np.load(os.path.join(d, "dets.npz"))
-    chunks.append(dict(dir=d, meta=meta, dets=z["dets"], emb_ids=z["emb_ids"], emb=z["emb"].astype(np.float32)))
+    dets = z["dets"]
+    byf = {}
+    if len(dets):
+        o_ = np.argsort(dets[:, 0], kind="stable"); dets = dets[o_]
+        fu, st_ = np.unique(dets[:, 0].astype(int), return_index=True)
+        for k_, (f_, a_) in enumerate(zip(fu, st_)):
+            b_ = st_[k_ + 1] if k_ + 1 < len(st_) else len(dets)
+            byf[int(f_)] = dets[a_:b_]
+    chunks.append(dict(dir=d, meta=meta, dets=dets, byf=byf, emb_ids=z["emb_ids"], emb=z["emb"].astype(np.float32)))
 if not chunks:
     sys.exit("no chunks")
 LAX = {int(k): v for k, v in chunks[0]["meta"]["lax_names"].items()}
@@ -54,14 +63,21 @@ CLS = {v.lower(): k for k, v in LAX.items()}
 FPS = chunks[0]["meta"]["fps"]
 
 
+EMPTY = np.zeros((0, 27), np.float32)
+
+
+def _f(C, i):
+    R = C["byf"].get(int(i), EMPTY)
+    return R[R[:, 8] > 0]
+
+
 def apply(Hm, x, y):
     q = Hm @ np.array([x, y, 1.0])
     return q[:2] / q[2]
 
 
-# ------------------------------------------------------------------ 1. field mapping per chunk
-quality = dict(chunks=[])
-for C in chunks:
+# ------------------------------------------------------------------ 1. field mapping per chunk (cached: slow part)
+def fit_chunk(C):
     fr = C["meta"]["frames"]; n = len(fr)
     keys = {int(k): v for k, v in C["meta"]["keys"].items()}
     # camera chains: a new 'shot' starts where frame-to-frame motion can't be measured (cut, replay, graphic)
@@ -111,7 +127,7 @@ for C in chunks:
                 if not 0.7 <= gwk <= 4.5:
                     Hk, info = None, "goal mouth maps to an impossible width"
         if Hk is not None:
-            R = C["dets"][(C["dets"][:, 0] == i) & (C["dets"][:, 8] > 0)]
+            R = _f(C, i)
             if len(R):
                 Q = np.array([apply(Hk, (r[3] + r[5]) / 2, r[6]) for r in R])
                 inside = ((Q[:, 1] > -4) & (Q[:, 1] < 58) & (np.abs(Q[:, 0]) < 70)).mean()
@@ -149,20 +165,42 @@ for C in chunks:
     for k1, k2 in zip(K, K[1:]):
         if k2 - k1 > 2 * FPS or shot[k1] != shot[k2]:
             continue
-        rows = D[(D[:, 0] == k2) & (D[:, 8] > 0)]
+        rows = _f(C, k2)
         if not len(rows):
             continue
         Ha = good[k1][0] @ np.linalg.inv(Hc[k1]) @ Hc[k2]
         for r in rows[:12]:
             fx, fy = (r[3] + r[5]) / 2, r[6]
             dis.append(float(np.linalg.norm(apply(Ha, fx, fy) - apply(good[k2][0], fx, fy))))
-    C["Hf"], C["shot"], C["Qf"], C["goodK"] = Hf, shot, Qf, K
-    quality["chunks"].append(dict(chunk=os.path.basename(C["dir"]), frames=n, keyframes=len(keys), keyframes_ok=len(good),
+    goals_clean = [f.get("goal") for f in fr]
+    return dict(qinfo=dict(chunk=os.path.basename(C["dir"]), frames=n, keyframes=len(keys), keyframes_ok=len(good),
                                   frames_mapped=int(sum(h is not None for h in Hf)), fails=fails,
                                   goal_width_yd_median=round(float(np.median(gw)), 2) if gw else None,
                                   neighbour_disagreement_yd_median=round(float(np.median(dis)), 2) if dis else None,
-                                  seconds_compute=C["meta"].get("seconds_total")))
+                                  seconds_compute=C["meta"].get("seconds_total")),
+                Hf=[None if h is None else np.round(h, 9).tolist() for h in Hf], Qf=Qf, shot=shot.tolist(), goodK=[int(k) for k in K],
+                goals=goals_clean)
 
+
+
+FIT = os.path.join(OUT, "fieldfit")
+os.makedirs(FIT, exist_ok=True)
+if a.fit_only:
+    for nm in a.fit_only.split(","):
+        C = next(c for c in chunks if os.path.basename(c["dir"]).endswith(nm))
+        json.dump(fit_chunk(C), open(os.path.join(FIT, os.path.basename(C["dir"]) + ".json"), "w"))
+        print("fitted", nm, f"{time.time() - T0:.0f}s", flush=True)
+    sys.exit(0)
+quality = dict(chunks=[])
+for C in chunks:
+    fp = os.path.join(FIT, os.path.basename(C["dir"]) + ".json")
+    R_ = json.load(open(fp)) if os.path.exists(fp) else fit_chunk(C)
+    C["Hf"] = [None if h is None else np.array(h) for h in R_["Hf"]]
+    C["Qf"], C["shot"], C["goodK"] = R_["Qf"], np.array(R_["shot"]), R_["goodK"]
+    for f, gb in zip(C["meta"]["frames"], R_["goals"]):
+        f["goal"] = gb
+    quality["chunks"].append(R_["qinfo"])
+print(f"field mapping done {time.time() - T0:.0f}s", flush=True)
 # ------------------------------------------------------------------ 2. stitch tracks across chunk overlaps
 parent = {}
 
@@ -187,7 +225,7 @@ for ci in range(1, len(chunks)):
         ia = int(np.argmin(np.abs(ta - t))); ib = int(np.argmin(np.abs(tb - t)))
         if abs(ta[ia] - t) > 0.2:
             continue
-        ra = A["dets"][A["dets"][:, 0] == ia]; rb = B["dets"][B["dets"][:, 0] == ib]
+        ra = A["byf"].get(ia, EMPTY); rb = B["byf"].get(ib, EMPTY)
         for r in rb:
             if r[2] < 0 or not len(ra):
                 continue
@@ -215,7 +253,7 @@ for C in chunks:
         gb = fr[i].get("goal")
         if not gb:
             continue
-        for r in C["dets"][(C["dets"][:, 0] == i) & (C["dets"][:, 8] > 0)]:
+        for r in _f(C, i):
             Xg, Yg = apply(C["Hf"][i], (r[3] + r[5]) / 2, r[6])
             if abs(Xg) < 40 and -5 < Yg < 58:
                 f1, f2 = goal_feats(r, gb)
@@ -270,9 +308,10 @@ fkey = O[:, 10] * 100000 + O[:, 11]
 absx = np.full(len(O), np.nan)
 absy = O[:, 3].copy()
 side_of_frame = {}
-uk, inv = np.unique(fkey, return_inverse=True)
+_fo = np.argsort(fkey, kind="stable")
+uk, _fs = np.unique(fkey[_fo], return_index=True)
 for j, k in enumerate(uk):
-    idx = np.nonzero(inv == j)[0]
+    idx = _fo[_fs[j]:(_fs[j + 1] if j + 1 < len(_fs) else len(_fo))]
     xs = O[idx, 2][O[idx, 4] > 0]
     if len(xs) < 3:
         continue
@@ -287,14 +326,17 @@ quality["mapped_inside_field_share"] = round(float(ok.sum() / max(1, (O[:, 4] > 
 
 # ------------------------------------------------------------------ 5. roles, refs, teams
 role_names = {CLS.get("goalie"): "goalie", CLS.get("longpole"): "longpole", CLS.get("referee"): "ref", CLS.get("shortstick"): "shortstick"}
+_go = np.argsort(O[:, 1], kind="stable")
+_gu, _gs = np.unique(O[_go, 1].astype(int), return_index=True)
+GIDX = {int(g_): _go[a_:(_gs[k_ + 1] if k_ + 1 < len(_gs) else len(_go))] for k_, (g_, a_) in enumerate(zip(_gu, _gs))}
 P = {}
 for g in range(NG):
-    m = O[:, 1] == g
+    m = GIDX.get(g, np.zeros(0, int))
     rr = O[m]
     cls = rr[:, 5][rr[:, 5] >= 0].astype(int)
     votes = {role_names.get(c, "player"): int((cls == c).sum()) for c in np.unique(cls)} if len(cls) else {}
-    P[g] = dict(n=int(m.sum()), turf=float(rr[:, 7].mean()), stripes=float(np.median(rr[:, 6])), votes=votes,
-                t0=float(rr[:, 0].min()), t1=float(rr[:, 0].max()))
+    P[g] = dict(n=int(len(m)), turf=float(rr[:, 7].mean()) if len(rr) else 0.0, stripes=float(np.median(rr[:, 6])), votes=votes,
+                t0=float(rr[:, 0].min()) if len(rr) else 0.0, t1=float(rr[:, 0].max()) if len(rr) else 0.0)
 strip_all = np.array([P[g]["stripes"] for g in range(NG)])
 strip_cut = float(np.percentile(strip_all[strip_all > 0], 90)) if (strip_all > 0).any() else 1e9
 for g in range(NG):
@@ -477,7 +519,7 @@ for ci, C in enumerate(chunks):
     for fi, f in enumerate(fr):
         if f["t"] >= t_hi:
             continue
-        R = D[(D[:, 0] == fi) & (D[:, 8] > 0)]
+        R = _f(C, fi)
         if len(R) < 6 or f["ph"] <= 0:
             continue
         hts = R[:, 6] - R[:, 4]
@@ -681,8 +723,8 @@ def attacks_right(team, t):
 for g in range(NG):
     if not P[g]["field"] or P[g]["role"] == "ref":
         continue
-    m = (O[:, 1] == g) & np.isfinite(absx)
-    if m.sum() < 6:
+    m = GIDX.get(g, np.zeros(0, int)); m = m[np.isfinite(absx[m])]
+    if len(m) < 6:
         continue
     t = O[m, 0]; x = absx[m]; y = absy[m]; qv = O[m, 12]
     o_ = np.argsort(t); t, x, y, qv = t[o_], x[o_], y[o_], qv[o_]

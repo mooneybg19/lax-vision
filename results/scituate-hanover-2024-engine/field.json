@@ -1,0 +1,73 @@
+{
+ "units": "yards",
+ "length": 110.0,
+ "width": 53.33,
+ "note": "x from the left end line, y from the near (camera) sideline. Width is the football width of a shared turf field (53.3 yd); a lacrosse-only field is 60 yd wide.",
+ "lines": [
+  {
+   "name": "end line L",
+   "x": 0
+  },
+  {
+   "name": "goal line L",
+   "x": 15
+  },
+  {
+   "name": "restraining line L",
+   "x": 35
+  },
+  {
+   "name": "midfield",
+   "x": 55
+  },
+  {
+   "name": "restraining line R",
+   "x": 75
+  },
+  {
+   "name": "goal line R",
+   "x": 95
+  },
+  {
+   "name": "end line R",
+   "x": 110
+  }
+ ],
+ "goals": [
+  {
+   "x": 15,
+   "y": 26.67,
+   "mouth_yd": 2.0
+  },
+  {
+   "x": 95,
+   "y": 26.67,
+   "mouth_yd": 2.0
+  }
+ ],
+ "crease_radius_yd": 3.0,
+ "center_x": {
+  "x": 55,
+  "y": 26.67
+ },
+ "wing_lines": [
+  {
+   "x0": 45,
+   "x1": 65,
+   "y": 6.67
+  },
+  {
+   "x0": 45,
+   "x1": 65,
+   "y": 46.67
+  }
+ ],
+ "sidelines": [
+  {
+   "y": 0
+  },
+  {
+   "y": 53.33
+  }
+ ]
+}

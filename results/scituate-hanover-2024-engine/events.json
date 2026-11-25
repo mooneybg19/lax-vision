@@ -1,0 +1,941 @@
+{
+"teams": [
+"white",
+"blue"
+],
+"events": [
+{
+"type": "clear",
+"t": 37.0,
+"t_end": 96.0,
+"team": "white",
+"result": "success",
+"ride_by": "blue",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 127.0,
+"t_end": 132.0,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 153.0,
+"t_end": 154.3,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 178.0,
+"t_end": 179.7,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 277.7,
+"t_end": 291.0,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 295.7,
+"t_end": 320.2,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "man-up",
+"t": 444.5,
+"t_end": 451.8,
+"duration": 7.3,
+"team": "white",
+"confidence": "low",
+"note": "saw 18 attackers but never more than 5 defenders (goalie not counted)"
+},
+{
+"type": "re-settle",
+"t": 451.8,
+"t_end": 455.8,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 468.5,
+"t_end": 496.8,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "man-up",
+"t": 646.3,
+"t_end": 671.0,
+"duration": 24.7,
+"team": "white",
+"confidence": "low",
+"note": "saw 55 attackers but never more than 1 defenders (goalie not counted)"
+},
+{
+"type": "re-settle",
+"t": 927.3,
+"t_end": 949.2,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "clear",
+"t": 1044.8,
+"t_end": 1049.2,
+"team": "white",
+"result": "success",
+"ride_by": "blue",
+"confidence": "medium"
+},
+{
+"type": "man-up",
+"t": 1082.2,
+"t_end": 1100.5,
+"duration": 18.3,
+"team": "blue",
+"confidence": "low",
+"note": "saw 30 attackers but never more than 1 defenders (goalie not counted)"
+},
+{
+"type": "faceoff",
+"t": 1088.5,
+"won_by": "white",
+"confidence": "medium",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 1088.5,
+"team": "white",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "clear",
+"t": 1100.5,
+"t_end": 1110.5,
+"team": "white",
+"result": "success",
+"ride_by": "blue",
+"confidence": "medium"
+},
+{
+"type": "clear",
+"t": 1136.5,
+"t_end": 1138.2,
+"team": "white",
+"result": "success",
+"ride_by": "blue",
+"confidence": "medium"
+},
+{
+"type": "faceoff",
+"t": 1254.7,
+"won_by": null,
+"confidence": "low",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 1254.7,
+"team": "white",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 1382.7,
+"t_end": 1384.7,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 1483.7,
+"t_end": 1498.0,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 1517.0,
+"t_end": 1517.7,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 1552.8,
+"t_end": 1562.8,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "clear",
+"t": 1654.2,
+"t_end": 1679.2,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "man-up",
+"t": 1778.5,
+"t_end": 1788.2,
+"duration": 9.7,
+"team": "blue",
+"confidence": "low",
+"note": "saw 15 attackers but never more than 2 defenders (goalie not counted)"
+},
+{
+"type": "re-settle",
+"t": 1788.2,
+"t_end": 1790.5,
+"team": "blue",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "man-up",
+"t": 1790.5,
+"t_end": 1798.2,
+"duration": 7.7,
+"team": "blue",
+"confidence": "low",
+"note": "saw 17 attackers but never more than 5 defenders (goalie not counted)"
+},
+{
+"type": "re-settle",
+"t": 1814.8,
+"t_end": 1821.2,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 1829.8,
+"t_end": 1834.8,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "clear",
+"t": 1911.3,
+"t_end": 1912.3,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "faceoff",
+"t": 1927.3,
+"won_by": "white",
+"confidence": "medium",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 1927.3,
+"team": "white",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 2210.2,
+"t_end": 2224.8,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 2287.8,
+"t_end": 2293.2,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "man-up",
+"t": 2487.0,
+"t_end": 2501.3,
+"duration": 14.3,
+"team": "blue",
+"confidence": "low",
+"note": "saw 15 attackers but never more than 2 defenders (goalie not counted)"
+},
+{
+"type": "faceoff",
+"t": 2636.7,
+"won_by": "white",
+"confidence": "medium",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 2636.7,
+"team": "white",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "man-up",
+"t": 2657.7,
+"t_end": 2664.7,
+"duration": 7.0,
+"team": "white",
+"confidence": "low",
+"note": "saw 18 attackers but never more than 5 defenders (goalie not counted)"
+},
+{
+"type": "clear",
+"t": 2734.7,
+"t_end": 2751.7,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "clear",
+"t": 2784.3,
+"t_end": 2804.8,
+"team": "white",
+"result": "success",
+"ride_by": "blue",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 2841.5,
+"t_end": 2846.8,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "faceoff",
+"t": 2867.2,
+"won_by": "white",
+"confidence": "medium",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 2867.2,
+"team": "white",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 2872.5,
+"t_end": 2898.8,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 2979.2,
+"t_end": 2984.2,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "faceoff",
+"t": 3179.7,
+"won_by": "blue",
+"confidence": "medium",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 3179.7,
+"team": "white",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "clear",
+"t": 3181.7,
+"t_end": 3201.3,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 3385.7,
+"t_end": 3392.0,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "clear",
+"t": 3427.5,
+"t_end": 3545.8,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "man-up",
+"t": 3545.8,
+"t_end": 3556.2,
+"duration": 10.4,
+"team": "blue",
+"confidence": "low",
+"note": "saw 12 attackers but never more than 3 defenders (goalie not counted)"
+},
+{
+"type": "man-up",
+"t": 3607.8,
+"t_end": 3635.5,
+"duration": 27.7,
+"team": "blue",
+"confidence": "low",
+"note": "saw 25 attackers but never more than 1 defenders (goalie not counted)"
+},
+{
+"type": "re-settle",
+"t": 3685.5,
+"t_end": 3686.5,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 3691.5,
+"t_end": 3694.2,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "man-up",
+"t": 3705.8,
+"t_end": 3712.2,
+"duration": 6.4,
+"team": "blue",
+"confidence": "low",
+"note": "saw 19 attackers but never more than 1 defenders (goalie not counted)"
+},
+{
+"type": "re-settle",
+"t": 3712.2,
+"t_end": 3712.8,
+"team": "blue",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 3717.8,
+"t_end": 3718.8,
+"team": "blue",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "man-up",
+"t": 3718.8,
+"t_end": 3738.3,
+"duration": 19.5,
+"team": "blue",
+"confidence": "low",
+"note": "saw 24 attackers but never more than 4 defenders (goalie not counted)"
+},
+{
+"type": "re-settle",
+"t": 3738.3,
+"t_end": 3739.0,
+"team": "blue",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "man-up",
+"t": 3739.0,
+"t_end": 3800.7,
+"duration": 61.7,
+"team": "blue",
+"confidence": "low",
+"note": "saw 27 attackers but never more than 4 defenders (goalie not counted)"
+},
+{
+"type": "faceoff",
+"t": 3802.7,
+"won_by": "white",
+"confidence": "medium",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 3802.7,
+"team": "blue",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 3813.7,
+"t_end": 3818.0,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "faceoff",
+"t": 3969.0,
+"won_by": "white",
+"confidence": "medium",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 3969.0,
+"team": "white",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 4061.5,
+"t_end": 4068.5,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 4074.2,
+"t_end": 4077.8,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 4081.2,
+"t_end": 4094.5,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "clear",
+"t": 4115.2,
+"t_end": 4115.5,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 4135.8,
+"t_end": 4138.5,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "faceoff",
+"t": 4258.2,
+"won_by": "blue",
+"confidence": "medium",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 4258.2,
+"team": "white",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "clear",
+"t": 4285.8,
+"t_end": 4301.5,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 4341.5,
+"t_end": 4342.8,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 4346.7,
+"t_end": 4347.3,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 4351.7,
+"t_end": 4355.0,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 4359.3,
+"t_end": 4360.0,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 4365.0,
+"t_end": 4371.3,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 4379.3,
+"t_end": 4383.7,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "clear",
+"t": 4411.7,
+"t_end": 4432.7,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "clear",
+"t": 4566.7,
+"t_end": 4573.0,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "clear",
+"t": 4672.8,
+"t_end": 4680.5,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "clear",
+"t": 4719.5,
+"t_end": 4726.2,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 4730.8,
+"t_end": 4743.5,
+"team": "blue",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "clear",
+"t": 4746.5,
+"t_end": 4751.8,
+"team": "white",
+"result": "success",
+"ride_by": "blue",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 4754.8,
+"t_end": 4761.8,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "clear",
+"t": 4834.2,
+"t_end": 4860.2,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "man-up",
+"t": 5005.7,
+"t_end": 5020.0,
+"duration": 14.3,
+"team": "blue",
+"confidence": "low",
+"note": "saw 14 attackers but never more than 2 defenders (goalie not counted)"
+},
+{
+"type": "clear",
+"t": 5080.7,
+"t_end": 5093.3,
+"team": "white",
+"result": "success",
+"ride_by": "blue",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 5156.3,
+"t_end": 5177.7,
+"team": "blue",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "faceoff",
+"t": 5347.2,
+"won_by": null,
+"confidence": "low",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 5347.2,
+"team": "white",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "clear",
+"t": 5521.2,
+"t_end": 5521.8,
+"team": "white",
+"result": "success",
+"ride_by": "blue",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 5571.5,
+"t_end": 5579.5,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "man-up",
+"t": 5610.3,
+"t_end": 5637.3,
+"duration": 27.0,
+"team": "white",
+"confidence": "low",
+"note": "saw 11 attackers but never more than 4 defenders (goalie not counted)"
+},
+{
+"type": "clear",
+"t": 5659.3,
+"t_end": 5660.3,
+"team": "white",
+"result": "success",
+"ride_by": "blue",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 5672.0,
+"t_end": 5682.0,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "faceoff",
+"t": 5737.0,
+"won_by": "white",
+"confidence": "medium",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 5737.0,
+"team": "white",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 5745.7,
+"t_end": 5751.7,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 5773.0,
+"t_end": 5777.3,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 5786.7,
+"t_end": 5807.0,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 5817.7,
+"t_end": 5827.3,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 5915.5,
+"t_end": 5926.5,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "man-up",
+"t": 5926.5,
+"t_end": 5932.8,
+"duration": 6.3,
+"team": "white",
+"confidence": "low",
+"note": "saw 19 attackers but never more than 4 defenders (goalie not counted)"
+},
+{
+"type": "re-settle",
+"t": 5932.8,
+"t_end": 5946.2,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "clear",
+"t": 5984.5,
+"t_end": 5984.8,
+"team": "blue",
+"result": "success",
+"ride_by": "white",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 6003.5,
+"t_end": 6009.2,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "faceoff",
+"t": 6032.5,
+"won_by": "white",
+"confidence": "medium",
+"after": "goal"
+},
+{
+"type": "goal",
+"t": 6032.5,
+"team": "white",
+"how": "faceoff followed",
+"confidence": "medium"
+},
+{
+"type": "re-settle",
+"t": 6059.5,
+"t_end": 6068.2,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 6083.8,
+"t_end": 6092.5,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 6101.2,
+"t_end": 6107.5,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 6123.2,
+"t_end": 6129.2,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+},
+{
+"type": "re-settle",
+"t": 6134.8,
+"t_end": 6140.8,
+"team": "white",
+"note": "same offense settled again at the same end: a failed clear or an offensive rebound (no ball tracking yet)",
+"confidence": "low"
+}
+]
+}

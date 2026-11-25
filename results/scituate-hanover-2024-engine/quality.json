@@ -1,0 +1,436 @@
+{
+ "chunks": [
+  {
+   "chunk": "chunk_000",
+   "frames": 932,
+   "keyframes": 311,
+   "keyframes_ok": 6,
+   "frames_mapped": 244,
+   "fails": {
+    "players land off the field": 25,
+    "poor line fit": 135,
+    "yard lines irregular": 31,
+    "goal far outside the numbered lines": 69,
+    "near sideline not in view": 16,
+    "goal mouth maps to an impossible width": 10,
+    "fewer than 3 yard lines": 18,
+    "no goal in this camera shot": 1
+   },
+   "goal_width_yd_median": 54.38,
+   "neighbour_disagreement_yd_median": 5.89,
+   "seconds_compute": 968
+  },
+  {
+   "chunk": "chunk_001",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 2,
+   "frames_mapped": 65,
+   "fails": {
+    "poor line fit": 155,
+    "goal far outside the numbered lines": 68,
+    "yard lines irregular": 31,
+    "players land off the field": 27,
+    "fewer than 3 yard lines": 11,
+    "goal mouth maps to an impossible width": 2,
+    "no goal in this camera shot": 18,
+    "near sideline not in view": 1
+   },
+   "goal_width_yd_median": 1.46,
+   "neighbour_disagreement_yd_median": null,
+   "seconds_compute": 1319
+  },
+  {
+   "chunk": "chunk_002",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 5,
+   "frames_mapped": 158,
+   "fails": {
+    "poor line fit": 106,
+    "players land off the field": 22,
+    "goal mouth maps to an impossible width": 6,
+    "yard lines irregular": 10,
+    "goal far outside the numbered lines": 17,
+    "near sideline not in view": 49,
+    "no goal in this camera shot": 78,
+    "fewer than 3 yard lines": 22
+   },
+   "goal_width_yd_median": 0.76,
+   "neighbour_disagreement_yd_median": 1.63,
+   "seconds_compute": 1263
+  },
+  {
+   "chunk": "chunk_003",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 60,
+   "frames_mapped": 513,
+   "fails": {
+    "yard lines irregular": 41,
+    "goal mouth maps to an impossible width": 49,
+    "players land off the field": 40,
+    "poor line fit": 40,
+    "no goal in this camera shot": 25,
+    "near sideline not in view": 25,
+    "goal far outside the numbered lines": 23,
+    "fewer than 3 yard lines": 12
+   },
+   "goal_width_yd_median": 0.84,
+   "neighbour_disagreement_yd_median": 1.81,
+   "seconds_compute": 1168
+  },
+  {
+   "chunk": "chunk_004",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 66,
+   "frames_mapped": 501,
+   "fails": {
+    "no goal in this camera shot": 130,
+    "poor line fit": 34,
+    "goal mouth maps to an impossible width": 37,
+    "yard lines irregular": 23,
+    "players land off the field": 9,
+    "goal far outside the numbered lines": 5,
+    "fewer than 3 yard lines": 8,
+    "near sideline not in view": 3
+   },
+   "goal_width_yd_median": 1.26,
+   "neighbour_disagreement_yd_median": 3.08,
+   "seconds_compute": 1367
+  },
+  {
+   "chunk": "chunk_005",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 83,
+   "frames_mapped": 875,
+   "fails": {
+    "poor line fit": 27,
+    "players land off the field": 45,
+    "goal mouth maps to an impossible width": 66,
+    "no goal in this camera shot": 17,
+    "yard lines irregular": 37,
+    "near sideline not in view": 33,
+    "goal far outside the numbered lines": 2,
+    "fewer than 3 yard lines": 5
+   },
+   "goal_width_yd_median": 0.83,
+   "neighbour_disagreement_yd_median": 1.97,
+   "seconds_compute": 1398
+  },
+  {
+   "chunk": "chunk_006",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 55,
+   "frames_mapped": 486,
+   "fails": {
+    "goal mouth maps to an impossible width": 38,
+    "fewer than 3 yard lines": 11,
+    "yard lines irregular": 25,
+    "no goal in this camera shot": 105,
+    "poor line fit": 38,
+    "players land off the field": 21,
+    "goal far outside the numbered lines": 15,
+    "near sideline not in view": 7
+   },
+   "goal_width_yd_median": 1.4,
+   "neighbour_disagreement_yd_median": 2.1,
+   "seconds_compute": 965
+  },
+  {
+   "chunk": "chunk_007",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 33,
+   "frames_mapped": 493,
+   "fails": {
+    "players land off the field": 20,
+    "goal mouth maps to an impossible width": 48,
+    "poor line fit": 47,
+    "yard lines irregular": 22,
+    "fewer than 3 yard lines": 18,
+    "no goal in this camera shot": 104,
+    "goal far outside the numbered lines": 11,
+    "near sideline not in view": 12
+   },
+   "goal_width_yd_median": 1.2,
+   "neighbour_disagreement_yd_median": 2.91,
+   "seconds_compute": 1480
+  },
+  {
+   "chunk": "chunk_008",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 68,
+   "frames_mapped": 587,
+   "fails": {
+    "poor line fit": 66,
+    "goal mouth maps to an impossible width": 42,
+    "players land off the field": 34,
+    "goal far outside the numbered lines": 27,
+    "no goal in this camera shot": 15,
+    "near sideline not in view": 15,
+    "yard lines irregular": 28,
+    "fewer than 3 yard lines": 20
+   },
+   "goal_width_yd_median": 1.31,
+   "neighbour_disagreement_yd_median": 4.37,
+   "seconds_compute": 1165
+  },
+  {
+   "chunk": "chunk_009",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 114,
+   "frames_mapped": 853,
+   "fails": {
+    "yard lines irregular": 25,
+    "poor line fit": 35,
+    "players land off the field": 16,
+    "fewer than 3 yard lines": 9,
+    "no goal in this camera shot": 25,
+    "goal mouth maps to an impossible width": 56,
+    "near sideline not in view": 8,
+    "goal far outside the numbered lines": 27
+   },
+   "goal_width_yd_median": 1.38,
+   "neighbour_disagreement_yd_median": 3.81,
+   "seconds_compute": 1548
+  },
+  {
+   "chunk": "chunk_010",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 45,
+   "frames_mapped": 377,
+   "fails": {
+    "poor line fit": 44,
+    "goal far outside the numbered lines": 27,
+    "yard lines irregular": 27,
+    "no goal in this camera shot": 86,
+    "players land off the field": 36,
+    "goal mouth maps to an impossible width": 33,
+    "fewer than 3 yard lines": 7,
+    "near sideline not in view": 10
+   },
+   "goal_width_yd_median": 1.44,
+   "neighbour_disagreement_yd_median": 2.41,
+   "seconds_compute": 1514
+  },
+  {
+   "chunk": "chunk_011",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 24,
+   "frames_mapped": 234,
+   "fails": {
+    "goal mouth maps to an impossible width": 34,
+    "yard lines irregular": 3,
+    "no goal in this camera shot": 119,
+    "poor line fit": 7,
+    "players land off the field": 8,
+    "goal far outside the numbered lines": 1,
+    "fewer than 3 yard lines": 1,
+    "near sideline not in view": 118
+   },
+   "goal_width_yd_median": 3.98,
+   "neighbour_disagreement_yd_median": 2.26,
+   "seconds_compute": 1173
+  },
+  {
+   "chunk": "chunk_012",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 0,
+   "frames_mapped": 0,
+   "fails": {
+    "near sideline not in view": 310,
+    "no goal in this camera shot": 5
+   },
+   "goal_width_yd_median": null,
+   "neighbour_disagreement_yd_median": null,
+   "seconds_compute": 911
+  },
+  {
+   "chunk": "chunk_013",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 24,
+   "frames_mapped": 345,
+   "fails": {
+    "no goal in this camera shot": 33,
+    "fewer than 3 yard lines": 28,
+    "yard lines irregular": 32,
+    "players land off the field": 18,
+    "goal far outside the numbered lines": 62,
+    "poor line fit": 87,
+    "goal mouth maps to an impossible width": 27,
+    "near sideline not in view": 4
+   },
+   "goal_width_yd_median": 3.71,
+   "neighbour_disagreement_yd_median": 1.22,
+   "seconds_compute": 1642
+  },
+  {
+   "chunk": "chunk_014",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 32,
+   "frames_mapped": 277,
+   "fails": {
+    "poor line fit": 64,
+    "yard lines irregular": 12,
+    "fewer than 3 yard lines": 8,
+    "goal far outside the numbered lines": 30,
+    "goal mouth maps to an impossible width": 19,
+    "no goal in this camera shot": 124,
+    "players land off the field": 9,
+    "near sideline not in view": 17
+   },
+   "goal_width_yd_median": 3.29,
+   "neighbour_disagreement_yd_median": 2.79,
+   "seconds_compute": 1254
+  },
+  {
+   "chunk": "chunk_015",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 68,
+   "frames_mapped": 589,
+   "fails": {
+    "near sideline not in view": 19,
+    "players land off the field": 21,
+    "no goal in this camera shot": 35,
+    "goal mouth maps to an impossible width": 19,
+    "yard lines irregular": 34,
+    "poor line fit": 81,
+    "fewer than 3 yard lines": 25,
+    "goal far outside the numbered lines": 13
+   },
+   "goal_width_yd_median": 2.66,
+   "neighbour_disagreement_yd_median": 2.37,
+   "seconds_compute": 985
+  },
+  {
+   "chunk": "chunk_016",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 49,
+   "frames_mapped": 443,
+   "fails": {
+    "players land off the field": 15,
+    "no goal in this camera shot": 45,
+    "poor line fit": 64,
+    "yard lines irregular": 33,
+    "fewer than 3 yard lines": 24,
+    "goal mouth maps to an impossible width": 29,
+    "near sideline not in view": 15,
+    "goal far outside the numbered lines": 41
+   },
+   "goal_width_yd_median": 2.94,
+   "neighbour_disagreement_yd_median": 0.56,
+   "seconds_compute": 1022
+  },
+  {
+   "chunk": "chunk_017",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 46,
+   "frames_mapped": 401,
+   "fails": {
+    "no goal in this camera shot": 144,
+    "yard lines irregular": 17,
+    "fewer than 3 yard lines": 13,
+    "poor line fit": 30,
+    "goal mouth maps to an impossible width": 29,
+    "goal far outside the numbered lines": 5,
+    "near sideline not in view": 23,
+    "players land off the field": 8
+   },
+   "goal_width_yd_median": 1.59,
+   "neighbour_disagreement_yd_median": 2.73,
+   "seconds_compute": 860
+  },
+  {
+   "chunk": "chunk_018",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 89,
+   "frames_mapped": 664,
+   "fails": {
+    "goal mouth maps to an impossible width": 57,
+    "no goal in this camera shot": 33,
+    "goal far outside the numbered lines": 18,
+    "players land off the field": 32,
+    "poor line fit": 32,
+    "fewer than 3 yard lines": 16,
+    "yard lines irregular": 22,
+    "near sideline not in view": 16
+   },
+   "goal_width_yd_median": 1.21,
+   "neighbour_disagreement_yd_median": 5.07,
+   "seconds_compute": 1076
+  },
+  {
+   "chunk": "chunk_019",
+   "frames": 944,
+   "keyframes": 315,
+   "keyframes_ok": 58,
+   "frames_mapped": 658,
+   "fails": {
+    "no goal in this camera shot": 40,
+    "goal mouth maps to an impossible width": 71,
+    "goal far outside the numbered lines": 8,
+    "players land off the field": 21,
+    "poor line fit": 44,
+    "yard lines irregular": 34,
+    "fewer than 3 yard lines": 7,
+    "near sideline not in view": 32
+   },
+   "goal_width_yd_median": 1.01,
+   "neighbour_disagreement_yd_median": 5.47,
+   "seconds_compute": 926
+  }
+ ],
+ "goal_anchored_model": {
+  "along": 0.24,
+  "depth": -4.6,
+  "samples": 4895,
+  "median_error_yd": [
+   7.8,
+   5.5
+  ]
+ },
+ "players_mapped_share": 0.563,
+ "mapped_inside_field_share": 0.882,
+ "team_split": {
+  "method": "SigLIP + UMAP + KMeans",
+  "colors": [
+   "white",
+   "blue"
+  ],
+  "players": 6652
+ },
+ "frames": 18868,
+ "frames_mapped": 8763,
+ "frames_mapped_share": 0.464,
+ "goal_width_yd": 1.4,
+ "neighbour_disagreement_yd": 2.57,
+ "keyframe_fail_reasons": {
+  "players land off the field": 427,
+  "poor line fit": 1136,
+  "yard lines irregular": 487,
+  "goal far outside the numbered lines": 469,
+  "near sideline not in view": 733,
+  "goal mouth maps to an impossible width": 672,
+  "fewer than 3 yard lines": 263,
+  "no goal in this camera shot": 1182
+ },
+ "faceoffs": 12,
+ "goals": 12,
+ "possessions": 227,
+ "seconds_analysis": 70
+}
