@@ -332,10 +332,24 @@ def fit_camera(obs, cx, cy, xs_mid, fixed=None, init=None):
                         dist = np.hypot(tx - Cx0, ty - Cy0)
                         pitch0 = np.arctan2(Cz0, dist)
                         inits.append([f0, yaw0, pitch0, 0.0, Cx0, Cy0, Cz0, obs.get("gx0", xs_mid)])
+    starts = []
     for p0 in inits:
         p0 = np.array(p0, float)
         if fixed is not None:
             p0 = np.concatenate([p0[:5], p0[7:]])
+        starts.append(p0)
+    if len(starts) > 4:                       # coarse pass: a few steps from every start, keep the 4 best
+        coarse = []
+        for p0 in starts:
+            try:
+                r0 = least_squares(residuals, p0, args=(obs, cx, cy, fixed), loss="soft_l1", f_scale=4.0, max_nfev=25)
+            except Exception:
+                continue
+            if r0.x[0] > 200:
+                coarse.append((r0.cost, r0.x))
+        coarse.sort(key=lambda t: t[0])
+        starts = [x for _, x in coarse[:4]]
+    for p0 in starts:
         try:
             res = least_squares(residuals, p0, args=(obs, cx, cy, fixed), loss="soft_l1", f_scale=4.0, max_nfev=400)
         except Exception:
