@@ -318,11 +318,18 @@ def keyframe_h(segs, side, g):
     pts = np.array(pts); ks = np.array(ks, float)
     d = np.array([side[2] - side[0], side[3] - side[1]]); d /= np.linalg.norm(d)
     t = pts @ d
-    p = fit_1d(ks, t)
-    pred = (p[0] * ks + p[1]) / (p[2] * ks + 1)
-    r1 = float(np.sqrt(np.mean((pred - t) ** 2)))
+    keep = np.ones(len(ks), bool)
+    while True:                                   # drop the worst crossing while it is clearly off (a stray line)
+        p = fit_1d(ks[keep], t[keep])
+        pred = (p[0] * ks + p[1]) / (p[2] * ks + 1)
+        res = np.abs(pred - t)
+        r1 = float(np.sqrt(np.mean(res[keep] ** 2)))
+        if r1 <= 6 or keep.sum() <= 3:
+            break
+        keep[np.argmax(np.where(keep, res, -1))] = False
     if r1 > 6:
         return None, "sideline crossings irregular"
+    pts, ks, L = pts[keep], ks[keep], [l for l, k_ in zip(L, keep) if k_]
     lg = np.cross(vp, hom(g))
     S = np.cross(lg, sl)
     if abs(S[2]) < 1e-9:
