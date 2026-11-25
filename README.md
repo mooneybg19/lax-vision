@@ -76,3 +76,21 @@ no field map yet (fallback to lacrosse lines/creases is not built).
 Team split follows the roboflow/sports recipe (SigLIP embeddings → UMAP → KMeans), with torso-color fallback.
 Set reading is template matching (Tactix-style) on the radar with 2 s smoothing; Tactix code is not copied.
 No ball tracking yet: shots, saves, ground balls, assists are out of scope for this round.
+
+### Design principles (Brian), applied from v2 on
+
+1. **Always on.** Every feature is computed for the whole game with no blank stretches. Where the field fit is weak the
+   engine still outputs its best estimate and flags it (`quality` per radar row, `field_quality`/`confidence` per
+   possession, `physical_confidence` per player). Showing or hiding a feature is a viewer setting, not an engine choice.
+2. **Goal-anchored.** Positions fall back to the goal (almost always in view): offsets in player heights from the goal,
+   scaled by factors learned from the frames that do have a full fit (`quality.json` → `goal_anchored_model`). Set
+   reading works on goal-relative structure (behind / crease / wings / up top).
+3. **Resolution-adaptive.** Heatmaps come in two resolutions: fine (10-yd cells, good fits only) and coarse (thirds ×
+   lanes, every estimate); `heatmap_resolution` says which one the film supports.
+4. **Confidence on everything.** Quality per row: 1.0 fit near a calibrated keyframe, 0.7 fit borrowed ≤10 s away,
+   0.4 goal-anchored, 0.3 remembered off-screen spot, 0.1 last known picture.
+5. **Field registration: next step.** Replace the hand-built football-grid fit with the PnLCalib / "No Bells, Just
+   Whistles" method (github.com/mguti97/PnLCalib, GPL-2.0; github.com/mguti97/No-Bells-Just-Whistles, license file not
+   read yet): keypoint- and line-heatmap networks + a known field model + camera calibration (not a flat homography),
+   which handles tilt and zoom at low angles. Plan: auto-generate lacrosse field-keypoint labels from the frames the
+   current fit gets right, train on low and varied angles, and fuse landmarks across a possession as the camera pans.
