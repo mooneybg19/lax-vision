@@ -1,0 +1,4 @@
+PnLCalib / No-Bells-Just-Whistles by Marc Gutierrez-Perez, GPL-2.0-or-later.
+Files cls_hrnet.py, utils_calib.py, utils_optimize.py, utils_heatmap.py are vendored
+from https://github.com/mguti97/PnLCalib and adapted for lacrosse. Because these are
+GPL-2.0-or-later, the lax-vision project as a whole is distributed under GPL-2.0-or-later.
