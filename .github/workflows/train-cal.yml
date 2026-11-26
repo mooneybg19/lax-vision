@@ -1,0 +1,44 @@
+name: train field-landmark detector (PnLCalib swap)
+
+on:
+  workflow_dispatch:
+    inputs:
+      n:
+        description: "synthetic frames to render"
+        default: "4000"
+      epochs:
+        description: "training epochs"
+        default: "25"
+
+permissions:
+  contents: write
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install
+        run: |
+          pip install --quiet numpy opencv-python-headless scipy
+          pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Render synthetic field data
+        run: python pipeline/gen_synth_field.py synth --n ${{ inputs.n }} --preview 8
+      - name: Train landmark detector
+        run: python pipeline/train_field_kp.py synth models_cal --epochs ${{ inputs.epochs }} --bs 16
+      - name: Evaluate calibrator on held-out synthetic cameras
+        run: python pipeline/eval_cal.py models_cal/field_kp.pt > models_cal/eval.txt 2>&1 || true
+      - name: Commit model + eval
+        run: |
+          git config user.name "gradr-pipeline"
+          git config user.email "gradr-pipeline@users.noreply.github.com"
+          cp synth/preview_000000.jpg models_cal/ 2>/dev/null || true
+          git add models_cal
+          git commit -m "Trained lacrosse field-landmark detector (synthetic) [skip ci]" || echo "nothing to commit"
+          git pull --rebase origin main
+          git push
+      - uses: actions/upload-artifact@v4
+        with: { name: field-kp-model, path: models_cal }
