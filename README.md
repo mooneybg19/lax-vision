@@ -94,3 +94,25 @@ No ball tracking yet: shots, saves, ground balls, assists are out of scope for t
    read yet): keypoint- and line-heatmap networks + a known field model + camera calibration (not a flat homography),
    which handles tilt and zoom at low angles. Plan: auto-generate lacrosse field-keypoint labels from the frames the
    current fit gets right, train on low and varied angles, and fuse landmarks across a possession as the camera pans.
+
+## Field registration swap — PnLCalib (status)
+
+The engine's only weak part is the field fit (football-grid homography: 46% of frames, ~10 yd error). It is being
+replaced with a PnLCalib-style **camera calibration from learned lacrosse landmarks**. Built and committed:
+
+- `pipeline/pnl/` — vendored PnLCalib solver + HRNet (**GPL-2.0-or-later**; see `pnl/NOTICE`). Because of this,
+  **lax-vision as a whole is GPL-2.0-or-later.** No-Bells-Just-Whistles is also GPL-2.0.
+- `pipeline/lax_field.py` — men's lacrosse field world model (lines, crease circles, 26 named landmarks) in yards.
+- `pipeline/field_cal.py` — planar calibrator: world↔image homography (RANSAC) + line refinement, converted to the
+  engine's field convention. **Self-tests to ~0.3–0.4 yd median field error with ≥8 identified landmarks** (vs ~10 yd now).
+- `pipeline/gen_synth_field.py` — synthetic training frames (field under randomised normal-film cameras) + heatmap
+  targets, no hand labelling.
+- `pipeline/train_field_kp.py` — landmark detector trainer (light U-Net; swap in HRNet for production).
+- `pipeline/field_infer.py` — drop-in `keyframe_h(frame, model)` replacing `field_geom.keyframe_h`.
+- `pipeline/eval_cal.py`, `.github/workflows/train-cal.yml` — held-out eval and the training job.
+
+**Honest status / blocker:** the calibrator (the math) is proven. The remaining piece is training the landmark
+detector, and that needs a **GPU** — CPU GitHub Actions cannot train it at useful scale (a toy 80-frame CPU model
+detects nothing; end-to-end 79 yd). Next: run `train-cal.yml` on a GPU runner (or finetune the vendored HRNet from
+PnLCalib's soccer weights on a GPU), then wire `field_infer.keyframe_h` into `engine_analyze.fit_chunk` behind a flag
+and re-run the dev game. Until then the engine keeps the football-grid fit as the labelled fallback.
