@@ -111,6 +111,21 @@ def fit_h(world, img):
     return H / (abs(H[2, 2]) or 1.0)
 
 
+def canon(H, ref_world):
+    """Canonical scale AND SIGN of a world->image homography: |H[2,2]| = 1 and w > 0 (in front of the camera) at the
+    reference world points (points known to be visible, e.g. the clicked landmarks). Dividing by H[2,2] alone flips
+    the sign whenever the world origin (the near-left corner) is behind the camera's principal plane, which a
+    camera panned toward the right end can do; every 'w > 0' visibility test downstream relies on this."""
+    H = np.asarray(H, float)
+    s = abs(H[2, 2]) if abs(H[2, 2]) > 1e-12 else np.linalg.norm(H)
+    H = H / s
+    R = np.atleast_2d(np.asarray(ref_world, float))
+    w = H[2, 0] * R[:, 0] + H[2, 1] * R[:, 1] + H[2, 2]
+    if np.median(w) < 0:
+        H = -H
+    return H
+
+
 def proj(H, P):
     """Apply H to (N,2) points. Returns (N,2) and the homogeneous w (N,)."""
     P = np.atleast_2d(np.asarray(P, float))
@@ -144,7 +159,10 @@ def doc_geometry(doc):
 
 
 def H_of(doc, key="H"):
-    return np.asarray(doc[key], float).reshape(3, 3)
+    """The document's homography with canonical sign (w > 0 at the clicked landmarks)."""
+    H = np.asarray(doc[key], float).reshape(3, 3)
+    ref = [doc["world"][n] for n in doc.get("pts", {}) if n in doc.get("world", {})]
+    return canon(H, ref) if ref else H
 
 
 def validate(doc, tol_world=2e-3, tol_off_px=0.35):

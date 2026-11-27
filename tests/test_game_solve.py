@@ -38,11 +38,15 @@ def field_err(Hu, k1, Ht, k1t, W):
 
 
 def check(docs, truth, bad, k1t, W, r, max_med, max_p90):
-    eb = np.concatenate([field_err(LI.H_of(d), 0.0, truth[d["frame"]], k1t, W) for d in docs])
-    ea = np.concatenate([field_err(np.array(r["frames"][d["frame"]]["H"]).reshape(3, 3), r["k1"], truth[d["frame"]], k1t, W) for d in docs])
+    """Field error of the frames game_solve keeps for training (flags in GS.EXCLUDE_FLAGS removed), before/after."""
+    keep = [d for d in docs if not set(r["frames"][d["frame"]]["flags"]) & GS.EXCLUDE_FLAGS]
+    print(f"kept for training {len(keep)}/{len(docs)}")
+    assert len(keep) >= 0.6 * len(docs)
+    eb = np.concatenate([field_err(LI.H_of(d), 0.0, truth[d["frame"]], k1t, W) for d in keep])
+    ea = np.concatenate([field_err(np.array(r["frames"][d["frame"]]["H"]).reshape(3, 3), r["k1"], truth[d["frame"]], k1t, W) for d in keep])
     print(f"k1 {r['k1']:.4f}+-{r['k1_se']:.4f} (true {k1t}); field err label H median {np.median(eb):.3f} p90 "
           f"{np.percentile(eb, 90):.3f} -> solved median {np.median(ea):.3f} p90 {np.percentile(ea, 90):.3f}")
-    assert bad[1] in r["outlier_clicks"].get(bad[0], []), r["outlier_clicks"]
+    assert bad[1] in r["outlier_clicks"].get(bad[0], []) or "poorly_constrained" in r["frames"][bad[0]]["flags"], r["outlier_clicks"]
     assert np.median(ea) < max_med and np.percentile(ea, 90) < max_p90
     assert np.median(ea) < 0.8 * np.median(eb) and np.percentile(ea, 90) < 0.8 * np.percentile(eb, 90)
 
@@ -51,7 +55,7 @@ def test_football_clicks_only_recovers_k1_and_hash():
     k1t = -0.06
     docs, truth, bad = make_game("gfb", 30, LI.FB_WIDTH, True, 20.0, 17.78, k1t, 1)
     r = GS.GameSolver(docs, use_paint=False, verbose=False).solve()
-    assert r["hash_snapped"] and r["hash"] == 20.0 and abs(r["hash_est"] - 20.0) < 0.1, r.get("hash_est")
+    assert r["hash_class"] == "college" and abs(r["hash"] - 20.0) < 0.1 and abs(r["hash_est"] - 20.0) < 0.1, r.get("hash_est")
     assert abs(r["k1"] - k1t) < max(3 * r["k1_se"], 0.015), (r["k1"], r["k1_se"])
     check(docs, truth, bad, k1t, LI.FB_WIDTH, r, 0.2, 0.8)
 

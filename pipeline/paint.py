@@ -41,6 +41,54 @@ def paint_field(img_bgr):
     return {"W": W, "H": H, "on": on, "dt": dt}
 
 
+def ridge_points(img_bgr, P=None, smooth=1.5, thresh=10.0):
+    """Sub-pixel paint-ridge centres (N,2) and a KD-tree over them, index coordinates. Same ridge strength as the
+    labeler (brightness minus the 19x19 local mean), but smoothed (Gaussian, `smooth` px) before taking local maxima,
+    so a flat-topped painted line several pixels wide gives ONE ridge at its centre, then moved to the vertex of a
+    parabola across the line (horizontal or vertical, whichever is sharper). The labeler's whole-pixel ridge is
+    ~0.85 px from the true centre on clean 5-px synthetic lines; this measure is what game_solve uses."""
+    from scipy.spatial import cKDTree
+    d = img_bgr.astype(np.float64)
+    g = (0.3 * d[..., 2] + 0.59 * d[..., 1] + 0.11 * d[..., 0]).astype(np.float32)
+    H, W = g.shape
+    I = np.zeros((H + 1, W + 1), np.float64)
+    I[1:, 1:] = np.cumsum(np.cumsum(g.astype(np.float64), axis=1), axis=0)
+    R = 9
+    ys = np.arange(H); xs = np.arange(W)
+    y0 = np.maximum(0, ys - R); y1 = np.minimum(H, ys + R + 1)
+    x0 = np.maximum(0, xs - R); x1 = np.minimum(W, xs + R + 1)
+    S = I[y1][:, x1] - I[y0][:, x1] - I[y1][:, x0] + I[y0][:, x0]
+    rid = g.astype(np.float64) - S / ((y1 - y0)[:, None] * (x1 - x0)[None, :])
+    rid = ndimage.gaussian_filter(rid, smooth)
+    c = rid[2:-2, 2:-2]
+    hx = (c >= rid[2:-2, 1:-3]) & (c > rid[2:-2, 3:-1]) & (c >= rid[2:-2, :-4]) & (c > rid[2:-2, 4:])
+    hy = (c >= rid[1:-3, 2:-2]) & (c > rid[3:-1, 2:-2]) & (c >= rid[:-4, 2:-2]) & (c > rid[4:, 2:-2])
+    on = np.zeros_like(rid, bool); on[2:-2, 2:-2] = (c >= thresh) & (hx | hy)
+    yy, xx = np.nonzero(on)
+    v = rid[yy, xx]
+    l, r = rid[yy, xx - 1], rid[yy, xx + 1]; u, dn = rid[yy - 1, xx], rid[yy + 1, xx]
+    cx = l - 2 * v + r; cy = u - 2 * v + dn                 # curvature (negative at a maximum)
+    hxm = hx[yy - 2, xx - 2] & (cx < 0); hym = hy[yy - 2, xx - 2] & (cy < 0)
+    use_x = hxm & (~hym | (cx <= cy))
+    use_y = hym & ~use_x
+    px = xx.astype(float); py = yy.astype(float)
+    px[use_x] += np.clip(0.5 * (l - r)[use_x] / cx[use_x], -0.5, 0.5)
+    py[use_y] += np.clip(0.5 * (u - dn)[use_y] / cy[use_y], -0.5, 0.5)
+    pts = np.c_[px, py][use_x | use_y]
+    return pts, (cKDTree(pts) if len(pts) else None)
+
+
+def dist_sub(tree, q, trunc=TRUNC):
+    """Distance (px) from each q to the nearest sub-pixel ridge point, capped at trunc; NaN q -> trunc."""
+    out = np.full(len(q), float(trunc))
+    ok = np.isfinite(q).all(1)
+    if tree is None or not ok.any():
+        return out
+    d, _ = tree.query(q[ok], distance_upper_bound=trunc)
+    out[ok] = np.minimum(d, trunc)
+    return out
+
+
 def dt_at(P, q):
     """Bilinear distance at points q (N,2); NaN where the labeler's dtAt returns null."""
     q = np.atleast_2d(q)

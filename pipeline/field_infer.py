@@ -108,7 +108,7 @@ def to_engine(H_w2i, W, goal_in_view_x, near_sideline_is_y0, image_scale=(1.0, 1
         cy, dy = -1.0, GOAL_Y_ENG + W / 2
     M = np.array([[a, 0, bx], [0, cy, dy], [0, 0, 1.0]])
     H = M @ H_i2w
-    return H / H[2, 2]
+    return H / H[2, 2]          # image -> field: (image points are always 'in front'; the sign is irrelevant here)
 
 
 def keyframe_h(frame_bgr, model_path, goal_in_view_x=15.0, near_sideline_is_y0=True, field="auto", k1=0.0):

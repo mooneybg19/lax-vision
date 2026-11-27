@@ -137,7 +137,7 @@ def train(args):
                 scaler.unscale_(opt)
                 torch.nn.utils.clip_grad_norm_([p for p in net.parameters() if p.requires_grad], 5.0)
                 scaler.step(opt); scaler.update(); opt.zero_grad(set_to_none=True); sched.step()
-            tot += float(loss); n += 1
+            tot += float(loss.detach()); n += 1
             if args.max_steps and it + 1 >= args.max_steps:
                 break
         # validation

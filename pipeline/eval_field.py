@@ -45,6 +45,39 @@ def legacy_unet_detect(frame_bgr, model_path, thresh=0.35):
     return out
 
 
+def engine_H(engine_dir, frame_id):
+    """The current engine's image -> engine-field homography for a label frame, from engine_analyze's fieldfit
+    (3 fps, nearest frame within 1/6 s of the label time) or None. engine_dir = results/<game>-engine."""
+    import glob
+    game, t = frame_id.rsplit("_t", 1); t = float(t)
+    raw = engine_dir + "-raw"
+    for fj in sorted(glob.glob(os.path.join(raw, "chunk_*", "frames.json"))):
+        meta = json.load(open(fj))
+        if not (meta["t_start"] <= t <= meta["t_end"]):
+            continue
+        ff = os.path.join(engine_dir, "fieldfit", os.path.basename(os.path.dirname(fj)) + ".json")
+        if not os.path.exists(ff):
+            continue
+        times = np.array([f["t"] for f in meta["frames"]])
+        i = int(np.argmin(np.abs(times - t)))
+        if abs(times[i] - t) > 0.17:
+            continue
+        Hf = json.load(open(ff))["Hf"]
+        if i < len(Hf) and Hf[i] is not None:
+            return np.array(Hf[i], float)
+    return None
+
+
+def engine_to_world_H(H_i2e, W, goal_x):
+    """Engine field (X from the in-view goal line toward the interior, Y from the near sideline, goal at 26.67)
+    -> absolute world; returns the world -> image H for the goal at goal_x (15 or 95)."""
+    a, b = (1.0, goal_x) if goal_x < 55 else (-1.0, goal_x)
+    M = np.array([[a, 0, b], [0, 1, W / 2 - FI.GOAL_Y_ENG], [0, 0, 1.0]])     # engine -> world
+    G = M @ H_i2e
+    ref = LI.proj(G, [[640, 700], [320, 650], [960, 650]])[0]                  # field under the bottom of the image
+    return LI.canon(np.linalg.inv(G), ref)
+
+
 def draw(img, H, k1, W, col, th=2):
     for a, b in list(FT.line_world(W, 17.78).values())[:13]:
         t = np.linspace(0, 1, 80)[:, None]
@@ -63,6 +96,7 @@ def main(argv=None):
     ap.add_argument("--split", default="test"); ap.add_argument("--kp", default=None); ap.add_argument("--line", default=None)
     ap.add_argument("--old_unet", default=None); ap.add_argument("--overlays", type=int, default=12)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--engine", default=None, help="results/<dev game>-engine: score the current engine on that game's test frames")
     a = ap.parse_args(argv)
     P = json.load(open(os.path.join(a.run, "prepared.json")))
     by = {d["frame"]: d for d in P["docs"]}
@@ -76,6 +110,9 @@ def main(argv=None):
     per = {c: {} for c in configs}
     if a.old_unet:
         per["old_unet"] = {}
+    eng_game = os.path.basename(a.engine.rstrip("/"))[:-len("-engine")] if a.engine else None
+    if a.engine:
+        per["engine"] = {}
     info_log = {}
     for i, d in enumerate(docs):
         im = FD.load_image(a.frames, d["frame"])
@@ -110,6 +147,13 @@ def main(argv=None):
             if len(names) >= 4:
                 Ho, _ = OLD.homography_from_points([LF.KEYPOINTS[n] for n in names], [kpo[n] for n in names])
             per["old_unet"][d["frame"]] = None if Ho is None else FC.yard_errors(Hl, k1l, Ho, 0.0, W)
+        if a.engine and d["game"] == eng_game:
+            He = engine_H(a.engine, d["frame"])
+            if He is None:
+                per["engine"][d["frame"]] = None
+            else:   # which goal the engine meant is not stored: score the better of the two (favours the engine)
+                es = [FC.yard_errors(Hl, k1l, engine_to_world_H(He, W, gx), 0.0, W) for gx in (15.0, 95.0)]
+                per["engine"][d["frame"]] = min(es, key=lambda e: np.median(e) if len(e) else np.inf)
         if i < a.overlays:
             ov = im.copy()
             draw(ov, Hl, k1l, W, (0, 255, 0), 3)
@@ -127,7 +171,10 @@ def main(argv=None):
     games = sorted({d["game"] for d in docs})
     for g in games:
         fs = {d["frame"] for d in docs if d["game"] == g}
-        report["by_game"][g] = {c: FC.summarize({k: v for k, v in pv.items() if k in fs}, len(fs)) for c, pv in per.items()}
+        report["by_game"][g] = {c: FC.summarize({k: v for k, v in pv.items() if k in fs}, len(fs)) for c, pv in per.items()
+                                if c != "engine" or g == eng_game}
+    if a.engine:   # the engine is only scored on its game: report it there, not in the overall table
+        report["overall"].pop("engine", None)
     report["per_frame"] = {c: {k: (None if v is None else float(np.median(v))) for k, v in pv.items()} for c, pv in per.items()}
     report["calib_info"] = info_log
     json.dump(report, open(os.path.join(out_dir, "report.json"), "w"), indent=1, default=float)

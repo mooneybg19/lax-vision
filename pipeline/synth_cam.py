@@ -64,7 +64,7 @@ def camera_H(rng, W=60.0, f_range=(900, 1800)):
         K = np.array([[f, 0, IMG_W / 2], [0, f, IMG_H / 2], [0, 0, 1.0]])
         t = -R @ cam
         H = K @ np.c_[R[:, 0], R[:, 1], t]
-        H = H / H[2, 2]
+        H = H / abs(H[2, 2])          # keep the physical sign: w = depth > 0 in front of the camera
         # keep cameras that see a decent piece of the field
         g = np.array([[x, y] for x in np.linspace(0, 110, 23) for y in np.linspace(0, W, 13)])
         q, w = LI.proj(H, g)

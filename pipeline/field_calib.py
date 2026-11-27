@@ -89,7 +89,7 @@ def calibrate(kp, W, hashD, fb, lines=None, border=None, k1=0.0, ransac_px=8.0, 
         ok = (w > 0) & (q[:, 0] > 2) & (q[:, 0] < img_wh[0] - 3) & (q[:, 1] > 2) & (q[:, 1] < img_wh[1] - 3)
         return P[ok]
 
-    Hn = H / H[2, 2]
+    Hn = LI.canon(H, X[inl])
     if refine:
         Xi, Ui, si = X[inl], U[inl], np.sqrt(np.clip(s[inl], 0.05, 1))
         # keep only line observations consistent with the RANSAC fit (within 3 x threshold)
@@ -123,7 +123,7 @@ def calibrate(kp, W, hashD, fb, lines=None, border=None, k1=0.0, ransac_px=8.0, 
             return np.concatenate(r)
         try:
             out = least_squares(res, np.zeros(8), loss="soft_l1", f_scale=3.0, max_nfev=200)
-            Hr = Hof(out.x); Hr = Hr / Hr[2, 2]
+            Hr = LI.canon(Hof(out.x), Xi)
             # never accept a refinement that makes the keypoints much worse
             e0 = np.median(np.hypot(*(_proj(Hn, Xi)[0] - Ui).T)); e1 = np.median(np.hypot(*(_proj(Hr, Xi)[0] - Ui).T))
             if np.all(np.isfinite(Hr)) and e1 <= max(2 * e0, e0 + 2):
@@ -162,6 +162,9 @@ def to_field(H, k1, pts, img_wh=(FT.IMG_W, FT.IMG_H)):
     """Image index coords -> field yards under (H undistorted world->image, k1). NaN where the ray misses the
     ground in front of the camera."""
     U = undistort(pts, k1, img_wh)
+    # sign safety net: the bottom of a sideline frame always looks at ground in front of the camera
+    bottom = undistort(np.array([[x, img_wh[1] - 20.0] for x in np.linspace(100, img_wh[0] - 100, 9)]), k1, img_wh)
+    H = LI.canon(H, LI.proj(np.linalg.inv(H), bottom)[0])
     Hi = np.linalg.inv(H)
     q, w = LI.proj(Hi, U)
     # a point is in front of the camera iff projecting it back gives positive w

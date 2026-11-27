@@ -67,8 +67,10 @@ calibration; error = distance in yards. Reported:
 
 Configs: **A** keypoints only, field type known, k1 = 0 (what the engine can do for a known field);
 **B** + lines; **C** B with the field type chosen automatically; **D** B with the game's k1 known; **old_unet** the
-earlier synthetic-data detector + `field_cal` (60-yd world). The current engine's `field_geom.keyframe_h` needs the
-engine's per-second line segments, which exist only for the dev game, so it is not in this table.
+earlier synthetic-data detector + `field_cal` (60-yd world); **engine** the current engine's field fit
+(`field_geom.keyframe_h` + shot chaining, read from `results/<game>-engine/fieldfit`), only on the dev game's test
+frames because the engine was only run on that game. Frames the engine did not map count as failures; the engine
+does not store which goal it registered to, so the better of the two goals is scored (this favours the engine).
 
 Note: the grid metric weighs far-field pixels (few pixels per yard) heavily; p90 is dominated by the far side.
 

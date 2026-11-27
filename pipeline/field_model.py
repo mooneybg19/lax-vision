@@ -93,18 +93,26 @@ def kp_probs(logits, mask):
 
 
 def kp_loss(logits, target, mask, pos_weight=10.0):
-    """MSE between masked-softmax probabilities and the Gaussian targets on the existing channels only, weighted
-    (1 + pos_weight * target) so the few peak pixels are not drowned by the background (cf. NBJW's
-    HeatmapWeightingMSELoss)."""
-    p = kp_probs(logits, mask)
-    w = (1 + pos_weight * target) * mask[:, :, None, None]
-    return ((p - target) ** 2 * w).sum() / (mask.sum() * p.shape[-1] * p.shape[-2]).clamp(min=1)
+    """Soft cross-entropy between the masked-softmax and the per-pixel target distribution over the existing
+    channels (Gaussians + background, renormalised to sum 1 where Gaussians overlap), weighted (1 + pos_weight * peak
+    target) so the few keypoint pixels count. (NBJW uses MSE on the softmax; with a re-initialised head that loss
+    saturates at 'background everywhere' -- its gradient on a keypoint logit is proportional to that channel's
+    probability. Verified on CPU: MSE stayed at the all-background value for 60 steps; CE does not saturate.)"""
+    lg = logits.float().masked_fill(~mask[:, :, None, None], -1e4)
+    logp = torch.log_softmax(lg, dim=1)
+    t = target * mask[:, :, None, None]
+    t = t / t.sum(1, keepdim=True).clamp(min=1e-6)
+    ce = -(t * logp).sum(1)                                            # (B, h, w)
+    w = 1 + pos_weight * target[:, :-1].amax(1)
+    return (ce * w).sum() / w.sum()
 
 
 def line_loss(logits, target, mask, pos_weight=10.0):
-    p = torch.sigmoid(logits.float())
+    """Weighted binary cross-entropy on the sigmoid line maps, existing channels only (gradient p - t: no saturation)."""
+    lg = logits.float()
+    bce = F.binary_cross_entropy_with_logits(lg, target, reduction="none")
     w = (1 + pos_weight * target) * mask[:, :, None, None]
-    return ((p - target) ** 2 * w).sum() / (mask.sum() * p.shape[-1] * p.shape[-2]).clamp(min=1)
+    return (bce * w).sum() / w.sum().clamp(min=1)
 
 
 # ------------------------------------------------------------------ targets on the GPU from point lists

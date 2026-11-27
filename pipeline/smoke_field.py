@@ -71,7 +71,8 @@ def main(argv=None):
     assert [r["epoch"] for r in log] == [0, 1] and log[0]["frozen"] and not log[1]["frozen"], log
     TF.main(["train", "--kind", "line", "--epochs", "1", "--freeze_epochs", "1"] + common)
     rep = EF.main(["--run", run, "--frames", fdir, "--limit", "3", "--overlays", "2",
-                   "--old_unet", os.path.join(ROOT, "models_cal", "field_kp.pt")])
+                   "--old_unet", os.path.join(ROOT, "models_cal", "field_kp.pt"),
+                   "--engine", os.path.join(ROOT, "results", "scituate-hanover-2024-engine")])
     assert rep["n_frames"] == 3 and set(rep["overall"]) >= {"A", "B", "C", "D", "old_unet"}
     im = cv2.imread(os.path.join(fdir, os.listdir(fdir)[0]))
     H, info = FI.keyframe_h(im, os.path.join(run, "kp_best.pt"))

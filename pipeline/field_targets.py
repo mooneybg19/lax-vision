@@ -105,6 +105,9 @@ def doc_geometry(doc):
     W = float(doc.get("width_used", W)); hashD = float(doc.get("hash_used") or hashD)
     if "H_u" in doc:
         H = np.asarray(doc["H_u"], float).reshape(3, 3); k1 = float(doc.get("k1", 0.0))
+        ref = [doc["world"][n] for n in doc.get("pts", {}) if n in doc.get("world", {})]
+        if ref:
+            H = LI.canon(H, ref)
     else:  # raw label: H from the labeler (paint-snapped => index convention), no lens
         H = LI.H_of(doc); k1 = 0.0
     return W, hashD, fb, H, k1

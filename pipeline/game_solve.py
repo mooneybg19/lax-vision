@@ -2,16 +2,17 @@
 
 One game = one camera, so constants that a single frame cannot pin down are shared by all its frames:
   k1    one radial lens coefficient (synth_cam.distort: p_d = c + (p_u - c)(1 + k1 r^2), r = |p_u - c| / 1280)
-  hash  football fields: the hash-row distance from each sideline (yd), estimated, then snapped to 17.78 (HS) or
-        20 (college) when the estimate is consistent with one of them
+  hash  football fields: the hash-row distance from each sideline (yd), estimated; used as estimated when well
+        determined (se <= 0.3 yd), else fixed at the nearest standard (17.78 HS / 20 college) and re-solved
   width optional (fit_width=True): the field width for lacrosse-only fields (reported, not snapped)
 Per frame: an undistorted homography H_f (8 dof; world yd -> undistorted px).
 
 Observations (all in image pixels):
   clicks  D_k1(H_f X(name; width, hash)) - click
-  paint   (if the frame jpg is available) the distance from each projected painted-line sample to the nearest painted
-          ridge in the frame (paint.py, the labeler's own detector), truncated at 6 px exactly like the labeler's
-          snap -- so the same evidence the labeler used, but now with the lens and the per-game constants free.
+  paint   (if the frame jpg is available) the distance from each projected painted-line sample (the labeler's samples,
+          visible under the label H) to the nearest SUB-PIXEL paint-ridge centre in the frame (paint.ridge_points:
+          the labeler's ridge strength, smoothed, parabola-refined; the labeler's whole-pixel ridges sit ~0.85 px off
+          the centre of a 5-px line and blur the lens estimate), truncated at 6 px like the labeler's snap.
 Robust (soft-L1, 3 px) least squares over all frames at once with a sparse Jacobian. Clicks whose residual exceeds
 3 sigma (and 3 px) are dropped and the game is re-solved (up to 3 rounds). Frames are flagged when a click is an
 outlier, when the paint match after the solve is poor, when their H moved a lot, or when they have no redundancy.
@@ -29,6 +30,9 @@ from synth_cam import distort, undistort, IMG_W, IMG_H
 T_IMG = np.array([[1 / 640, 0, -1.0], [0, 1 / 640, -360 / 640], [0, 0, 1.0]])
 T_INV = np.linalg.inv(T_IMG)
 CLICK_W, PAINT_W, F_SCALE = 1.0, 1.0, 3.0
+POOR_SD_PX = 6.0        # frame excluded from training when its H places the visible field with p90 1-sigma uncertainty above this
+HASH_SE_MAX = 0.3       # hash estimate used as is when its standard error is below this (yd), else snapped
+DEGENERATE_SD_PX = 15.0 # ... and left out of the joint fit when already above this at the start (near-collinear clicks)
 K1_PRIOR_SD = 0.5
 
 
@@ -44,7 +48,7 @@ def _lin(fn, W0, h0):
 
 
 class Frame:
-    def __init__(self, doc, W0, h0, fb, paintfield=None):
+    def __init__(self, doc, W0, h0, fb, paintfield=None, ridge_tree=None):
         self.doc = doc; self.id = doc["frame"]
         self.names = list(doc["pts"].keys())
         # labeler clicks are canvas coords (pixel centre at i+0.5); everything here is index coords (centre at i),
@@ -52,9 +56,10 @@ class Frame:
         self.clicks = np.array([doc["pts"][n] for n in self.names], float) - 0.5
         self.keep = np.ones(len(self.names), bool)
         self.cb, self.cW, self.ch = _lin(lambda W, h: [LI.world_of(n, W, h, fb) for n in self.names], W0, h0)
-        self.H0 = LI.H_of(doc); self.H0 = self.H0 / self.H0[2, 2]      # the label's H (reporting)
+        self.H0 = LI.H_of(doc)                                            # the label's H (canonical sign)
         self.Hb = self.H0.copy()                                          # base of the per-frame parametrisation
         self.P = paintfield
+        self.tree = ridge_tree
         self.sb = None
         if paintfield is not None:
             # line samples visible under the label H (fixed set, like the labeler's snap), linear in W and hash
@@ -109,9 +114,11 @@ class GameSolver:
             if use_paint and frames_dir:
                 p = os.path.join(frames_dir, d["frame"] + ".jpg")
                 im = cv2.imread(p)
+                T = None
                 if im is not None and im.shape[1] == IMG_W and im.shape[0] == IMG_H:
                     P = PT.paint_field(im)
-            self.frames.append(Frame(d, W0, h0, fb, P))
+                    T = PT.ridge_points(im, P)[1]
+            self.frames.append(Frame(d, W0, h0, fb, P, T if P is not None else None))
         # only estimate constants that something observes
         hash_obs = any(np.any(f.ch[:, 1] != 0) for f in self.frames) or any(f.sb is not None and np.any(f.sh[:, 1] != 0) for f in self.frames)
         width_obs = any(np.any(f.cW[:, 1] != 0) for f in self.frames) or any(f.sb is not None and np.any(f.sW[:, 1] != 0) for f in self.frames)
@@ -140,9 +147,8 @@ class GameSolver:
             S = f.sb + f.sW * (W - self.W0) + f.sh * (h - self.h0)
             qs, ws = LI.proj(H, S)
             qs = distort(qs, k1)
-            dd = PT.dt_at(f.P, qs)
-            dd = np.where(np.isfinite(dd) & (ws > 0), np.minimum(dd, PT.TRUNC), PT.TRUNC)
-            out.append(dd * PAINT_W)
+            qs[~(ws > 0)] = np.nan
+            out.append(PT.dist_sub(f.tree, qs) * PAINT_W)
         return np.concatenate(out)
 
     def residuals(self, x):
@@ -211,20 +217,23 @@ class GameSolver:
         return out
 
     def _frame_cost(self, f, H, k1, h, W):
+        """Robust cost of one frame, each residual capped at 10 px so a frame with nearly collinear clicks (whose
+        refits are degenerate) cannot dominate the grid over the shared constants. NaN-safe."""
         r = self._frame_res_H(f, H, k1, h, W)
+        r = np.where(np.isfinite(r), np.minimum(np.abs(r), 10.0), 10.0)
         return float(np.sum(2 * F_SCALE ** 2 * (np.sqrt(1 + (r / F_SCALE) ** 2) - 1)))
 
     def _frame_res_H(self, f, H, k1, h, W):
         X = f.cb + f.cW * (W - self.W0) + f.ch * (h - self.h0)
         q, w = LI.proj(H, X)
         rc = (distort(q, k1) - f.clicks) * CLICK_W
-        rc[w <= 0] = 50.0
+        rc[~(w > 1e-9)] = 50.0
         out = [rc.ravel()]
         if f.sb is not None:
             S = f.sb + f.sW * (W - self.W0) + f.sh * (h - self.h0)
             qs, ws = LI.proj(H, S)
-            dd = PT.dt_at(f.P, distort(qs, k1))
-            out.append(np.where(np.isfinite(dd) & (ws > 0), np.minimum(dd, PT.TRUNC), PT.TRUNC) * PAINT_W)
+            qs = distort(qs, k1); qs[~(ws > 0)] = np.nan
+            out.append(PT.dist_sub(f.tree, qs) * PAINT_W)
         return np.concatenate(out)
 
     def _refit_frame(self, f, k1, h, W):
@@ -236,18 +245,20 @@ class GameSolver:
         subsets = [np.arange(n)] + ([np.delete(np.arange(n), i) for i in range(n)] if n >= 6 else [])
         for idx in subsets:
             try:
-                Hc = LI.fit_h(X[idx], U[idx])
-                if np.all(np.isfinite(Hc)):
-                    cands.append(Hc / Hc[2, 2])
+                Hc = LI.canon(LI.fit_h(X[idx], U[idx]), X[idx])
+                w = LI.proj(Hc, X[idx])[1]
+                if np.all(np.isfinite(Hc)) and np.all(w > 1e-6 * np.abs(Hc).max()):   # a degenerate DLT puts w ~ 0
+                    cands.append(Hc)
             except Exception:
                 pass
         costs = [self._frame_cost(f, Hc, k1, h, W) for Hc in cands]
+        costs = [c if np.isfinite(c) else np.inf for c in costs]
         j = int(np.argmin(costs))
         return cands[j], costs[j]
 
     def initialise(self):
         """Grid over the shared constants with per-frame refits; sets each frame's base H. Returns (k1, h, W)."""
-        k1s = np.linspace(-0.3, 0.3, 13)
+        k1s = np.linspace(-0.3, 0.3, 61)        # 0.01 steps: the paint term's basin is only a few px wide
         hs = sorted({self.h0, LI.HASH_HS, LI.HASH_COLLEGE}) if self.fit_hash else [self.h0]
         Ws = sorted({self.W0, 60.0, LI.FB_WIDTH}) if self.fit_width else [self.W0]
         best = None
@@ -312,16 +323,56 @@ class GameSolver:
         self.levs = levs
         return sigma, changed
 
+    def pred_sd(self, f, d, k1, h, W, sigma=1.0):
+        """p90 over the visible field (grid points inside the image) of the 1-sigma uncertainty (px) of where this
+        frame's H puts them, from the frame's own observations (kept clicks + paint), shared constants fixed."""
+        def res(dd):
+            return self._frame_res(f, dd, k1, h, W)
+        r0 = res(d); J = np.empty((len(r0), 8))
+        for k in range(8):
+            e = d.copy(); e[k] += 1e-6; J[:, k] = (res(e) - r0) / 1e-6
+        A = J.T @ J
+        if np.linalg.matrix_rank(A, tol=1e-9 * max(1.0, np.abs(A).max())) < 8:
+            return np.inf
+        cov = np.linalg.inv(A) * sigma ** 2
+        g = np.array([[x, y] for x in np.linspace(0, 110, 23) for y in np.linspace(0, W, 12)])
+        H = _H_from(f.Hb, d)
+        q, w = LI.proj(H, g)
+        vis = (w > 0) & (q[:, 0] >= 0) & (q[:, 0] < IMG_W) & (q[:, 1] >= 0) & (q[:, 1] < IMG_H)
+        if vis.sum() < 3:
+            return np.inf
+        g = g[vis]
+        q0 = LI.proj(H, g)[0]; G = np.empty((len(g), 2, 8))
+        for k in range(8):
+            e = d.copy(); e[k] += 1e-6
+            G[:, :, k] = (LI.proj(_H_from(f.Hb, e), g)[0] - q0) / 1e-6
+        var = np.einsum("pik,kl,pil->p", G, cov, G)
+        return float(np.percentile(np.sqrt(np.maximum(var, 0)), 90))
+
     def solve(self, max_rounds=4):
         rep = {"game": self.game, "field": "football" if self.fb else "lacrosse", "width_labeled": self.W0,
                "hash_labeled": self.h0 if self.fb else None, "n_frames": len(self.frames),
                "n_paint_frames": sum(f.sb is not None for f in self.frames)}
         x0 = self._x0()
         e0_list = self.click_errors(x0)              # under the label H, no lens, labeled hash/width
+        e0_by = {f.id: e for f, e in zip(self.frames, e0_list)}
         e0 = np.concatenate(e0_list)
         rep["before"] = {"click_rms_px": float(np.sqrt(np.mean(e0 ** 2))), "click_median_px": float(np.median(e0)),
                          "click_p90_px": float(np.percentile(e0, 90))}
         k1i, hi, Wi = self.initialise()
+        # frames whose own observations cannot pin their H down (e.g. clicks almost on one line, no paint) are left
+        # out of the joint fit and out of training: their targets away from the clicks would be guesses
+        self.excluded = {}
+        for f in list(self.frames):
+            sd = self.pred_sd(f, np.zeros(8), k1i, hi, Wi)
+            if not sd <= DEGENERATE_SD_PX:
+                self.excluded[f.id] = sd
+        if len(self.excluded) == len(self.frames):
+            raise ValueError(f"{self.game}: every frame is poorly constrained")
+        self.frames = [f for f in self.frames if f.id not in self.excluded]
+        if self.verbose and self.excluded:
+            print(f"  [{self.game}] {len(self.excluded)} poorly constrained frame(s) left out: {sorted(self.excluded)}")
+        e0_list = [e0_by[f.id] for f in self.frames]
         xi = self._x0(k1=k1i, h=hi, W=Wi)
         res = None
         # continuation: a wide robust scale first (so a wrong hash / lens is pulled in rather than explained away
@@ -329,9 +380,14 @@ class GameSolver:
         self.f_scale = 30.0
         res = self._run(xi)
         self.f_scale = F_SCALE
+        seen = set()
         for rnd in range(max_rounds + 1):
             res = self._run(res.x)
             sigma, changed = self._reject(res.x)
+            state = tuple(tuple(f.keep) for f in self.frames)
+            if state in seen:                    # rejection is cycling between two sets: stop at this one
+                changed = 0
+            seen.add(state)
             if self.verbose:
                 print(f"  [{self.game}] round {rnd}: cost {res.cost:.1f}  sigma {sigma:.2f}px  "
                       f"outlier clicks {sum(int((~f.keep).sum()) for f in self.frames)} (changed {changed})")
@@ -348,10 +404,18 @@ class GameSolver:
             hse = float(se[1])
             std = min((LI.HASH_HS, LI.HASH_COLLEGE), key=lambda s: abs(s - h))
             rep["hash_est"] = float(h); rep["hash_se"] = hse
-            if abs(h - std) <= max(3 * hse, 0.4):
+            rep["hash_class"] = "high school" if std == LI.HASH_HS else "college"
+            if hse <= HASH_SE_MAX:
+                # well determined: keep the estimate. The painted ticks are 2 ft long and the estimate is where their
+                # centres are, which can sit a few tenths of a yard off the rule-book number; the image is the truth.
+                rep["hash"] = float(h); rep["hash_snapped"] = False
+                if abs(h - std) > 0.6:
+                    rep.setdefault("warnings", []).append(
+                        f"hash estimate {h:.2f}+-{hse:.2f} yd is {abs(h - std):.2f} yd from the nearest standard ({std})")
+            else:
+                # poorly determined (few hash observations): fix it at the nearest standard value and re-solve
                 rep["hash"] = std; rep["hash_snapped"] = True
-                # re-solve with the hash fixed at the standard value so every frame is consistent with it
-                self.fit_hash = False; self.h0_true = std
+                self.fit_hash = False
                 hold = self.h0; self.h0 = std
                 for f in self.frames:
                     f.cb = f.cb + f.ch * (std - hold)
@@ -363,10 +427,6 @@ class GameSolver:
                 se = self._shared_se(res)
                 k1, h, W, i0 = self._shared(res.x)
                 rep["k1"] = float(k1); rep["k1_se"] = float(se[0])
-            else:
-                rep["hash"] = float(h); rep["hash_snapped"] = False
-                rep.setdefault("warnings", []).append(
-                    f"hash estimate {h:.2f}+-{hse:.2f} yd matches neither 17.78 nor 20; using the estimate")
         else:
             rep["hash"] = self.h0 if self.fb else None
         if self.fit_width:
@@ -381,7 +441,7 @@ class GameSolver:
         g = np.array([[x, y] for x in np.linspace(0, 110, 23) for y in np.linspace(0, W, 12)])
         for j, f in enumerate(self.frames):
             H = _H_from(f.Hb, res.x[i0 + 8 * j:i0 + 8 * j + 8])
-            fr = {"H": (H / H[2, 2]).ravel().tolist(), "n_clicks": len(f.names), "n_kept": int(f.keep.sum()),
+            fr = {"H": LI.canon(H, f.cb).ravel().tolist(), "n_clicks": len(f.names), "n_kept": int(f.keep.sum()),
                   "click_rms_before": float(np.sqrt(np.mean(e0_list[j] ** 2))),
                   "click_rms_after": float(np.sqrt(np.mean(errs[j][f.keep] ** 2))), "flags": []}
             # how far the corrected mapping moved inside the image (px), on the visible field
@@ -401,9 +461,14 @@ class GameSolver:
                 fr["flags"].append("unchecked_no_redundancy")
             if fr["moved_px_max"] is not None and fr["moved_px_max"] > 15:
                 fr["flags"].append("moved_gt_15px")
+            fr["pred_sd_px_p90"] = self.pred_sd(f, res.x[i0 + 8 * j:i0 + 8 * j + 8], k1, h, W, sigma=max(self.sigma, 0.5))
+            if not fr["pred_sd_px_p90"] <= POOR_SD_PX:
+                fr["flags"].append("poorly_constrained")
             if fr["click_rms_after"] > 4 * max(self.sigma, 1.0):
                 fr["flags"].append("high_rms")
             frames[f.id] = fr
+        for fid, sd in self.excluded.items():
+            frames[fid] = {"H": None, "flags": ["poorly_constrained"], "pred_sd_px_p90": sd}
         rep["frames"] = frames
         rep["flagged_frames"] = {k: v["flags"] for k, v in frames.items() if v["flags"]}
         return rep
@@ -424,13 +489,13 @@ def solve_all(docs, frames_dir=None, verbose=True, **kw):
         out[g] = GameSolver(ds, frames_dir=frames_dir, verbose=verbose, **kw).solve()
         r = out[g]
         if verbose:
-            print(f"  k1 {r['k1']:+.4f} +- {r['k1_se']:.4f}" + (f"  hash {r.get('hash_est', r['hash']):.2f} -> {r['hash']}" if r["field"] == "football" else "")
+            print(f"  k1 {r['k1']:+.4f} +- {r['k1_se']:.4f}" + (f"  hash {r.get('hash_est', r['hash']):.2f} ({r.get('hash_class', '-')}) used {r['hash']:.2f}" if r["field"] == "football" else "")
                   + f"  click rms {r['before']['click_rms_px']:.2f} -> {r['after']['click_rms_px']:.2f} px"
                   + f"  flagged frames {len(r['flagged_frames'])}")
     return out
 
 
-EXCLUDE_FLAGS = {"low_paint_match", "high_rms"}
+EXCLUDE_FLAGS = {"low_paint_match", "high_rms", "poorly_constrained"}
 
 
 def apply(docs, reports, exclude_flags=EXCLUDE_FLAGS):
