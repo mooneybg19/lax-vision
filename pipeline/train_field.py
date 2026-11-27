@@ -86,6 +86,8 @@ def train(args):
     tr, va, te = load_prepared(args.out)
     if args.limit:
         tr, va = tr[:args.limit], va[:max(1, args.limit // 2)]
+    if not tr:
+        raise SystemExit("no training frames (all rejected or flagged?): see game_solve.json")
     print(f"device {dev}  kind {args.kind}  train {len(tr)} val {len(va)} (test {len(te)} untouched)")
     in_wh = tuple(int(v) for v in args.size.split("x"))
     assert in_wh[1] % 4 == 0 and (in_wh[1] // 4) % 2 == 0 and in_wh[0] % 8 == 0, "size: W % 8 == 0 and H % 8 == 0"

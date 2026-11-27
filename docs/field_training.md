@@ -23,13 +23,20 @@ from PnLCalib's soccer detectors. Run it with `field_hrnet_training.ipynb` on a 
    `rms` does not match the reprojection under `H`, or `H_clicks` is not the DLT of the clicks. `paint.py` is the
    labeler's paint detector, ported bit-exactly (tested on real frames).
 2. **Per-game fit** `game_solve.py`: all frames of one game share the lens `k1` and (football) the hash distance; each
-   frame has its own homography. Minimises click reprojection error plus the distance of the projected painted lines
-   to the paint ridges in the frame (the labeler's own evidence, truncated at 6 px), robust soft-L1, sparse Jacobian.
-   Start: grid over `k1` (and hash 17.78 / 20 / labelled) with per-frame refits. Outlier clicks: standardised by
-   leverage, `|e| / (sigma sqrt(1 - h)) > 3.4` and `> 3 px`, removed and re-solved until stable. The hash estimate is
-   snapped to 17.78 or 20 when within `max(3 se, 0.4 yd)` (0.4 yd ~ the length of a tick) and the game re-solved;
-   otherwise kept with a warning. Frames flagged `low_paint_match` (< 60% after the fit) or `high_rms` are dropped
-   from training; other flags are informational. Report: `RUN/game_solve.json`.
+   frame has its own homography. Minimises click reprojection error plus the distance of the projected painted-line
+   samples to **sub-pixel paint-ridge centres** found in the frame (`paint.ridge_points`: the labeler's ridge strength,
+   smoothed and parabola-refined; the labeler's whole-pixel ridges sit ~0.85 px off the centre of a 5-px line, which
+   biased the lens estimate), truncated at 6 px, robust soft-L1, sparse Jacobian. Start: grid over `k1` (0.01 steps;
+   hash 17.78 / 20 / labelled) with per-frame refits. Frames whose own observations cannot pin their H down (predicted
+   1-sigma position of the visible field, p90, > 15 px at the start, e.g. clicks nearly on one line) are left out;
+   after the fit, > 6 px is flagged `poorly_constrained`. Outlier clicks: standardised by leverage,
+   `|e| / (sigma sqrt(1 - h)) > 3.4` and `> 3 px`, removed and re-solved until stable. The hash estimate is used as
+   estimated when its standard error is <= 0.3 yd (the painted ticks are 2 ft long; the image decides), otherwise it
+   is fixed at the nearest standard and re-solved. Frames flagged `low_paint_match` (< 60% after the fit),
+   `high_rms` or `poorly_constrained` are dropped from training; other flags are informational. A game-level warning
+   is printed when the fit moves the clicks a lot (paint and clicks disagree). Report: `RUN/game_solve.json`.
+   All homographies are kept with a canonical sign (`labels_io.canon`: w > 0 in front of the camera); dividing by
+   `H[2,2]` alone flips it whenever the near-left corner is behind the camera plane (a camera panned to the right end).
 3. **Targets** `field_targets.py`: one fixed channel list = 35 lacrosse + 78 football landmarks (+ background), and
    13 lacrosse + 18 yard lines (5..105 step 5 minus 35/55/75, which are lacrosse lines) + 2 hash rows (+ all-lines).
    Keypoints: Gaussian, sigma 2 output px, only where the projected point is inside the image. Lines (NBJW layout):
@@ -40,7 +47,11 @@ from PnLCalib's soccer detectors. Run it with `field_hrnet_training.ipynb` on a 
    lines) always.
 4. **Model** `field_model.py`: two HRNetV2-w48 nets as in NBJW/PnLCalib (keypoints: masked softmax over channels;
    lines: sigmoid), each from its soccer checkpoint (`SV_kp`, `SV_lines`) with only the final 1x1 conv re-initialised.
-   Input 960x540 RGB in [0,1], output 480x270. Loss: MSE weighted `1 + 10 * target` on existing channels.
+   Input 960x540 RGB in [0,1], output 480x270. Losses: keypoints = soft cross-entropy between the masked softmax and the
+   per-pixel target distribution, weighted `1 + 10 * peak target`; lines = weighted BCE. (NBJW's MSE on the softmax
+   saturated at "background everywhere" with a re-initialised head in a CPU overfit check: loss flat for 60 steps,
+   no detections; with CE the same check detected all 35 landmarks of the frame, flipped and unflipped, with the
+   correct channel names, within 120 steps.)
    `train_field.py`: AdamW (body 1e-4, new head 1e-3), 1 warm-up epoch then cosine, stages 1-2 frozen for 8 epochs,
    AMP, batch 2 x 2 accumulation. Augmentation: flip (left/right channels permuted, near/far unchanged, permutation
    derived from world coordinates and tested), colour jitter, blur, noise, JPEG.
@@ -77,10 +88,18 @@ Note: the grid metric weighs far-field pixels (few pixels per yard) heavily; p90
 ## What has been verified (CPU, no real labels yet)
 
 - Landmark/line/fitH port == labeler JS (node); paint port == labeler JS on real frames, bit-exact.
-- game_solve on synthetic games with known truth: recovers k1 and the hash, flags an injected bad click, field error
-  drops (football, clicks only: median 1.78 -> 0.09 yd, p90 6.1 -> 0.37 yd when the hash was mislabelled).
+- game_solve, synthetic games with known truth (`tests/test_game_solve.py`):
+  football, clicks only, hash mislabelled 17.78 (truth 20), k1 = -0.06: k1 -0.058 +- 0.007, hash 20.00, the injected
+  15-px click flagged; field error of the kept frames median 1.60 -> 0.07 yd, p90 4.48 -> 0.23 yd (19/30 kept, the
+  rest poorly constrained by 5-8 noisy clicks).
+  lacrosse with painted frames, k1 = 0.05: k1 0.045, field error median 0.23 -> 0.015 yd, p90 1.9 -> 0.065 yd.
+  Real frames with synthetic lines painted over the real field (8 frames per game): k1 within 0.004 of the truth in
+  all four games, hash 17.79 (truth 17.78).
 - Targets: render -> decode error 0.03 px median; flipped targets == targets of the mirrored camera; GPU targets ==
-  CPU targets; masked channels get exactly zero gradient.
+  CPU targets; masked channels get exactly zero gradient. Real-frame overlay: `results/field_training_checks/`.
 - Perfect heatmaps -> decode -> calibrate -> metric: ~0.01 yd median (pins every coordinate convention).
-- Whole path (prepare, train kp with resume, train line, eval, field_infer) runs on fake labels
-  (`python pipeline/smoke_field.py --weights DIR`). Fake labels say nothing about accuracy.
+- Cameras with the world origin behind the camera plane (`tests/test_sign.py`).
+- One-frame overfit on CPU (480x272): `results/field_training_checks/cpu_overfit_one_frame.log`.
+- Whole path (prepare, train kp with resume, train line, eval incl. old-UNet and engine baselines, field_infer) runs on
+  fake labels (`python pipeline/smoke_field.py --weights DIR`), and the notebook itself was executed end to end on CPU
+  with Colab stubs and fake labels. Fake labels say nothing about accuracy.

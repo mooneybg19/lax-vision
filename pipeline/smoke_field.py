@@ -40,6 +40,7 @@ def make_fake(work, per_game, seed=0):
                 continue
             base = cv2.imread(os.path.join(src, fr + ".jpg"))
             cv2.imwrite(os.path.join(fdir, fr + ".jpg"), SC.render(H, W, fb, h or 17.78, k1, rng, base=base))
+            d["synthetic_k1"] = k1
             docs.append(d); n += 1
         docs.append({"frame": frames[-1], "game": g, "skip": True, "at": 0})       # a skipped frame, as exported
     p = os.path.join(work, "field_labels.json")

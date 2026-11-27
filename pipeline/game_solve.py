@@ -436,6 +436,10 @@ class GameSolver:
         allk = np.concatenate([e[f.keep] for e, f in zip(errs, self.frames)])
         rep["after"] = {"click_rms_px": float(np.sqrt(np.mean(allk ** 2))), "click_median_px": float(np.median(allk)),
                         "click_p90_px": float(np.percentile(allk, 90)), "sigma_px": float(self.sigma)}
+        if rep["after"]["click_median_px"] > max(2 * rep["before"]["click_median_px"], 2.0):
+            rep.setdefault("warnings", []).append(
+                f"the fit moved the clicks a lot (median {rep['before']['click_median_px']:.2f} -> "
+                f"{rep['after']['click_median_px']:.2f} px): paint and clicks disagree for this game; look at its frames")
         rep["outlier_clicks"] = {f.id: [n for n, k in zip(f.names, f.keep) if not k] for f in self.frames if not f.keep.all()}
         frames = {}
         g = np.array([[x, y] for x in np.linspace(0, 110, 23) for y in np.linspace(0, W, 12)])
