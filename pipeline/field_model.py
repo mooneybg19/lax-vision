@@ -125,9 +125,10 @@ def _gauss_grid(pts, h, w, sigma):
     return g * ok.view(B, C, 1, 1)
 
 
-def build_targets(batch, h=FT.OUT_H, w=FT.OUT_W, sigma=FT.SIGMA):
+def build_targets(batch, sigma=FT.SIGMA):
     """From the dataset's sparse targets (on any device) to dense heatmaps:
        kp (B, N_KP+1, h, w) with background = clip(1 - sum), ln (B, N_LINE+1, h, w)."""
+    h, w = batch["border"].shape[-2:]
     kp = _gauss_grid(batch["kp_xy"], h, w, sigma)
     bg = (1 - kp.sum(1, keepdim=True)).clamp(0, 1)
     kp = torch.cat([kp, bg], 1)

@@ -45,9 +45,10 @@ def load_image(frames_dir, frame):
     return im
 
 
-def to_input(img_bgr):
-    """BGR uint8 1280x720 -> float tensor (3, 540, 960) RGB in [0,1] (NBJW input)."""
-    im = cv2.resize(img_bgr, (FT.IN_W, FT.IN_H), interpolation=cv2.INTER_AREA)
+def to_input(img_bgr, in_wh=(FT.IN_W, FT.IN_H)):
+    """BGR uint8 1280x720 -> float tensor (3, 540, 960) RGB in [0,1] (NBJW input). in_wh: only the CPU smoke
+    test uses a smaller size (training at 960x540 does not fit in a few GB of CPU RAM)."""
+    im = cv2.resize(img_bgr, tuple(in_wh), interpolation=cv2.INTER_AREA)
     return torch.from_numpy(np.ascontiguousarray(im[..., ::-1].transpose(2, 0, 1))).float() / 255.0
 
 
@@ -73,8 +74,9 @@ def augment_color(im, rng):
 
 
 class FieldDataset(torch.utils.data.Dataset):
-    def __init__(self, docs, frames_dir, train=True, seed=0, cache_targets=True):
+    def __init__(self, docs, frames_dir, train=True, seed=0, cache_targets=True, in_wh=(FT.IN_W, FT.IN_H)):
         self.docs, self.frames_dir, self.train, self.seed = list(docs), frames_dir, train, seed
+        self.in_wh = tuple(in_wh); self.out_wh = (in_wh[0] // 2, in_wh[1] // 2)
         self.cache = {} if cache_targets else None
         self.epoch = 0
 
@@ -85,7 +87,7 @@ class FieldDataset(torch.utils.data.Dataset):
         key = (i, flip)
         if self.cache is not None and key in self.cache:
             return self.cache[key]
-        t = FT.sparse_targets(self.docs[i], flip=flip)
+        t = FT.sparse_targets(self.docs[i], flip=flip, out_wh=self.out_wh)
         t = {"kp_xy": t["kp_xy"].astype(np.float32), "kp_mask": t["kp_mask"], "ln_xy": t["ln_xy"].astype(np.float32),
              "ln_mask": t["ln_mask"], "border": t["border"].astype(np.float16)}
         if self.cache is not None:
@@ -102,6 +104,6 @@ class FieldDataset(torch.utils.data.Dataset):
         if self.train:
             im = augment_color(im, rng)
         t = self._targets(i, flip)
-        return {"image": to_input(im), "kp_xy": torch.from_numpy(t["kp_xy"]), "kp_mask": torch.from_numpy(t["kp_mask"]),
+        return {"image": to_input(im, self.in_wh), "kp_xy": torch.from_numpy(t["kp_xy"]), "kp_mask": torch.from_numpy(t["kp_mask"]),
                 "ln_xy": torch.from_numpy(t["ln_xy"]), "ln_mask": torch.from_numpy(t["ln_mask"]),
                 "border": torch.from_numpy(t["border"]), "index": i, "flip": flip}

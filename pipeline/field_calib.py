@@ -188,8 +188,8 @@ def summarize(per_frame, n_frames):
     allp = np.concatenate(list(ok.values())) if ok else np.array([])
     fm = np.array([np.median(v) for v in ok.values()]) if ok else np.array([])
     fail_inf = np.r_[fm, np.full(n_frames - len(ok), np.inf)]
-    def pc(a, p):
-        return float(np.percentile(a, p)) if len(a) else None
+    def pc(a, p):   # 'higher' keeps infinite (failed) entries well-defined instead of inf - inf = nan
+        return float(np.percentile(a, p, method="higher")) if len(a) else None
     return {"frames": n_frames, "calibrated": len(ok), "success_rate": len(ok) / max(1, n_frames),
             "points_median_yd": pc(allp, 50), "points_p90_yd": pc(allp, 90),
             "frame_median_of_medians_yd": pc(fm, 50), "frame_p90_of_medians_yd": pc(fm, 90),
