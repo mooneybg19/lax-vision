@@ -6,7 +6,8 @@ import glob, json, os, random, subprocess, sys
 
 out = sys.argv[1] if len(sys.argv) > 1 else "results/label_frames"
 per_game = int(sys.argv[2]) if len(sys.argv) > 2 else 45
-only = sys.argv[3] if len(sys.argv) > 3 else None
+only = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] != "all" else None
+batch = int(sys.argv[4]) if len(sys.argv) > 4 else 0
 os.makedirs(out, exist_ok=True)
 for path in sorted(glob.glob("games/*.json")):
     name = os.path.basename(path)[:-5]
@@ -15,7 +16,7 @@ for path in sorted(glob.glob("games/*.json")):
     g = json.load(open(path))
     url = g.get("web_video_url") or g["video_url"]
     dur = g.get("duration_s", 3000)
-    rng = random.Random(name)
+    rng = random.Random(name if batch == 0 else f"{name}#{batch}")
     times = sorted(rng.sample(range(int(dur * .04), int(dur * .96)), per_game))
     for t in times:
         dst = os.path.join(out, f"{name}_t{t:05d}.jpg")

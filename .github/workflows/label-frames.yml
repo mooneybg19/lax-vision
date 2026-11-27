@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       per_game: { description: "frames per game", default: "45" }
+      batch: { description: "batch number (new seed)", default: "0" }
 
 permissions:
   contents: write
@@ -19,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-      - run: python3 pipeline/label_frames.py out ${{ inputs.per_game }} ${{ matrix.game }}
+      - run: python3 pipeline/label_frames.py out ${{ inputs.per_game }} ${{ matrix.game }} ${{ inputs.batch }}
       - uses: actions/upload-artifact@v4
         with: { name: "frames-${{ matrix.game }}", path: out }
   save:
@@ -30,7 +31,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with: { path: dl, pattern: "frames-*", merge-multiple: true }
       - run: |
-          mkdir -p results/label_frames && cp dl/*.jpg results/label_frames/
+          mkdir -p results/label_frames && cp -n dl/*.jpg results/label_frames/
           ls results/label_frames | wc -l
           git config user.name "lax-pipeline"
           git config user.email "lax-pipeline@users.noreply.github.com"

@@ -8,41 +8,50 @@ World frame (ground plane, z = 0):
   y: 0..60 across the width
   goals on the centre line of the width (y = 30), 15 yd in from each end line -> x = 15 and x = 95.
 
-Dimensions: NFHS/NCAA men's field 110 x 60 yd; goals 15 yd from the end line (80 yd apart); crease radius
-9 ft = 3 yd; goal mouth 6 ft = 2 yd; restraining lines 20 yd from the centre line (x = 35, 75); wing lines
-10 yd long, 10 yd from the centre of the field (y = 20 and 40), centred on midfield (x = 50..60); centre
-line at x = 55. Sources: NFHS Boys Lacrosse and NCAA Men's Lacrosse rulebooks (field diagram).
+Dimensions (USA Lacrosse "How to line a men's field", 2026; NFHS/NCAA): 110 x 60 yd (width may be reduced to
+53 1/3 on football fields, so sideline points depend on WIDTH while centre-relative markings do not); goal line
+15 yd from each end line; crease radius 9 ft = 3 yd centred on the goal line; goal mouth 6 ft = 2 yd; restraining
+line 20 yd from each goal line (x = 35, 75), sideline to sideline; goal-area box sides 20 yd either side of the
+field centre (y = c -/+ 20) from the restraining line to the end line; wing lines 20 yd either side of the field
+centre, 10 yd each side of the centre line (x = 45..65); centre line x = 55 with the faceoff X at its middle.
 """
 import numpy as np
 
 LENGTH = 110.0
-WIDTH = 60.0
+WIDTH = 60.0                # regulation; 53.33 on many football-lined fields (see keypoints(width))
 GOAL_Y = WIDTH / 2          # 30
 GOALS_X = (15.0, 95.0)
 CREASE_R = 3.0
 GOAL_HALF = 1.0             # half of the 2-yd mouth
 RESTRAIN_X = (35.0, 75.0)
 CENTER_X = 55.0
-WING_Y = (20.0, 40.0)
-WING_X = (50.0, 60.0)
+WING_OFF = 20.0            # wing lines and box sides: 20 yd either side of the field centre
+WING_X = (45.0, 65.0)
 
-# ---- named keypoints (world x,y in yards). Order is the detector's channel order; keep it stable. ----
-KEYPOINTS = {
-    "corner_0_0": (0.0, 0.0), "corner_0_60": (0.0, 60.0),
-    "corner_110_0": (110.0, 0.0), "corner_110_60": (110.0, 60.0),
-    "restrain_L_near": (35.0, 0.0), "restrain_L_far": (35.0, 60.0),
-    "restrain_R_near": (75.0, 0.0), "restrain_R_far": (75.0, 60.0),
-    "center_near": (55.0, 0.0), "center_far": (55.0, 60.0),
-    "wing_L_near": (50.0, 20.0), "wing_L_far": (50.0, 40.0),
-    "wing_R_near": (60.0, 20.0), "wing_R_far": (60.0, 40.0),
-    # crease cardinal points + goal posts, both goals
-    "creaseL_front": (18.0, 30.0), "creaseL_back": (12.0, 30.0),
-    "creaseL_near": (15.0, 27.0), "creaseL_far": (15.0, 33.0),
-    "goalL_near": (15.0, 29.0), "goalL_far": (15.0, 31.0),
-    "creaseR_front": (92.0, 30.0), "creaseR_back": (98.0, 30.0),
-    "creaseR_near": (95.0, 27.0), "creaseR_far": (95.0, 33.0),
-    "goalR_near": (95.0, 29.0), "goalR_far": (95.0, 31.0),
-}
+# ---- named keypoints. Order is the detector's channel order; keep it stable. ----
+def keypoints(width=WIDTH):
+    """Named landmarks (x, y) in yards for a field of the given width (y = 0 is the near/camera sideline)."""
+    c = width / 2.0; lo, hi = c - WING_OFF, c + WING_OFF
+    return {
+        "corner_0_0": (0.0, 0.0), "corner_0_60": (0.0, width),
+        "corner_110_0": (110.0, 0.0), "corner_110_60": (110.0, width),
+        "restrain_L_near": (35.0, 0.0), "restrain_L_far": (35.0, width),
+        "restrain_R_near": (75.0, 0.0), "restrain_R_far": (75.0, width),
+        "center_near": (55.0, 0.0), "center_far": (55.0, width), "faceoff_X": (55.0, c),
+        # goal-area box: corners on the restraining line and on the end line
+        "boxL_near": (35.0, lo), "boxL_far": (35.0, hi), "boxL_end_near": (0.0, lo), "boxL_end_far": (0.0, hi),
+        "boxR_near": (75.0, lo), "boxR_far": (75.0, hi), "boxR_end_near": (110.0, lo), "boxR_end_far": (110.0, hi),
+        # wing line end points
+        "wing_near_L": (45.0, lo), "wing_near_R": (65.0, lo), "wing_far_L": (45.0, hi), "wing_far_R": (65.0, hi),
+        # crease cardinal points + goal posts, both goals
+        "creaseL_front": (18.0, c), "creaseL_back": (12.0, c), "creaseL_near": (15.0, c - 3), "creaseL_far": (15.0, c + 3),
+        "goalL_near": (15.0, c - 1), "goalL_far": (15.0, c + 1),
+        "creaseR_front": (92.0, c), "creaseR_back": (98.0, c), "creaseR_near": (95.0, c - 3), "creaseR_far": (95.0, c + 3),
+        "goalR_near": (95.0, c - 1), "goalR_far": (95.0, c + 1),
+    }
+
+
+KEYPOINTS = keypoints()
 KP_NAMES = list(KEYPOINTS.keys())
 KP_WORLD = np.array([KEYPOINTS[n] for n in KP_NAMES], float)   # (N,2)
 
@@ -53,20 +62,27 @@ def _circle(cx, cy, r, n=48):
 
 
 # ---- straight line segments and crease arcs (polylines) for the line head and for drawing ----
-LINES = {
-    "sideline_near": [[0.0, 0.0], [110.0, 0.0]],
-    "sideline_far": [[0.0, 60.0], [110.0, 60.0]],
-    "endline_L": [[0.0, 0.0], [0.0, 60.0]],
-    "endline_R": [[110.0, 0.0], [110.0, 60.0]],
-    "center": [[55.0, 0.0], [55.0, 60.0]],
-    "restrain_L": [[35.0, 0.0], [35.0, 60.0]],
-    "restrain_R": [[75.0, 0.0], [75.0, 60.0]],
-    "wing_L": [[50.0, 20.0], [50.0, 40.0]],
-    "wing_R": [[60.0, 20.0], [60.0, 40.0]],
-    "goalmouth_L": [[15.0, 29.0], [15.0, 31.0]],
-    "goalmouth_R": [[95.0, 29.0], [95.0, 31.0]],
-}
-ARCS = {"creaseL": _circle(15.0, 30.0, CREASE_R), "creaseR": _circle(95.0, 30.0, CREASE_R)}
+def lines(width=WIDTH):
+    c = width / 2.0; lo, hi = c - WING_OFF, c + WING_OFF
+    return {
+        "sideline_near": [[0.0, 0.0], [110.0, 0.0]], "sideline_far": [[0.0, width], [110.0, width]],
+        "endline_L": [[0.0, 0.0], [0.0, width]], "endline_R": [[110.0, 0.0], [110.0, width]],
+        "center": [[55.0, 0.0], [55.0, width]],
+        "restrain_L": [[35.0, 0.0], [35.0, width]], "restrain_R": [[75.0, 0.0], [75.0, width]],
+        "boxL_near": [[0.0, lo], [35.0, lo]], "boxL_far": [[0.0, hi], [35.0, hi]],
+        "boxR_near": [[75.0, lo], [110.0, lo]], "boxR_far": [[75.0, hi], [110.0, hi]],
+        "wing_near": [[45.0, lo], [65.0, lo]], "wing_far": [[45.0, hi], [65.0, hi]],
+        "goalmouth_L": [[15.0, c - 1], [15.0, c + 1]], "goalmouth_R": [[95.0, c - 1], [95.0, c + 1]],
+    }
+
+
+def arcs(width=WIDTH):
+    c = width / 2.0
+    return {"creaseL": _circle(15.0, c, CREASE_R), "creaseR": _circle(95.0, c, CREASE_R)}
+
+
+LINES = lines()
+ARCS = arcs()
 
 
 def field_json():
