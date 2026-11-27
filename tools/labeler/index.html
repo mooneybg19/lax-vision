@@ -98,7 +98,7 @@ kbd{font:600 12px Barlow,sans-serif;border:1px solid var(--rule);border-bottom-w
       <ul class="pts" id="pts"></ul>
     </div>
     <div class="card">
-      <p class="hint">Paint intersections are the most precise points: where box and restraining lines meet, line ends, crease edges, and on football fields where yard lines cross the sidelines or the hash marks. Click the middle of the paint. Once four or more points give a fit, the tool snaps the field onto the painted lines and checks how much of it matches. With faint paint, add a fifth point so your points can check each other. You can only save a checked fit, and the magenta field should sit right on the lines before you save. Skip close-ups, crowd shots and replays.</p>
+      <p class="hint">Paint intersections are the most precise points: where box and restraining lines meet, line ends, crease edges, and on football fields where yard lines cross the sidelines or the hash marks. Click the middle of the paint. Once four or more points give a fit, the tool snaps the field onto the painted lines and checks how much of it matches. With faint paint, add a fifth point so your points can check each other. You can only save a checked fit, and the magenta field should sit right on the lines before you save. On football fields, when a crease or goal is in view, click it too: it shows where the lacrosse field actually sits on the football lines, which isn't always centred on the 50. Skip close-ups, crowd shots and replays.</p>
       <p class="keys"><kbd>Enter</kbd> save and next, <kbd>S</kbd> skip, <kbd>Z</kbd> undo point, <kbd>Esc</kbd> drop selection, arrow keys move between frames. Drag any point to adjust it.</p>
     </div>
     <div class="card">
@@ -209,7 +209,8 @@ function paintMatch(H,P,W){const S=visibleSamples(H,paintSamples(W),P);if(S.leng
 const bg=[2.5,-2.5,1.5,-1.5].map(o=>matchAt(H,P,S,o));const back=bg.reduce((a,b)=>a+b,0)/bg.length;return {frac,back,n:S.length}}
 // Gauss-Newton on the 8 homography parameters: pull every visible line sample onto the nearest paint centre (truncated so
 // occluded or unpainted stretches are ignored) while keeping each click close to where it was put.
-function snapToPaint(H0,P,W,clickW,clickI){let h=[H0[0][0],H0[0][1],H0[0][2],H0[1][0],H0[1][1],H0[1][2],H0[2][0],H0[2][1]];const toH=h=>[[h[0],h[1],h[2]],[h[3],h[4],h[5]],[h[6],h[7],1]];
+function snapToPaint(H0,P,W,clickW,clickI){// parameterise with H[2][2] scaled to 1, but keep the original overall sign so points stay in front of the camera
+const k0=H0[2][2];if(!k0)return null;const sg=Math.sign(k0),N=H0.map(r=>r.map(x=>x/k0));let h=[N[0][0],N[0][1],N[0][2],N[1][0],N[1][1],N[1][2],N[2][0],N[2][1]];const toH=h=>[[sg*h[0],sg*h[1],sg*h[2]],[sg*h[3],sg*h[4],sg*h[5]],[sg*h[6],sg*h[7],sg]];
 const S=visibleSamples(H0,paintSamples(W),P);if(S.length<40)return null;const CW=.5;
 function resid(h){const H=toH(h),r=[];for(const s of S){const q=proj(H,s[0],s[1]);let d=q?dtAt(P,q[0],q[1]):null;if(d==null||d>TRUNC)d=TRUNC;r.push(d)}
 for(let i=0;i<clickW.length;i++){const q=proj(H,clickW[i][0],clickW[i][1]);if(!q){r.push(50,50);continue}r.push(CW*(q[0]-clickI[i][0]),CW*(q[1]-clickI[i][1]))}return r}
