@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Field landmark labeling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a working tool for one careful job; quiet, precise, no decoration.
+   IDEA: a groundskeeper's line-marking sheet laid next to the game film.
+   PICTURE: the film frame itself, with the fitted field drawn over it in marking paint.
+   COLOUR and TYPE: turf green and chalk white from the field, paint yellow for what you touch, magenta for the fit; Barlow, the face of stadium signage.
+   LAYOUT: frame large on the left, field map and point list on the right; stacks on narrow screens. */
+:root{color-scheme:light dark;
+--bg:light-dark(#e9eee8,#0e1712);--panel:light-dark(#ffffff,#16221b);--ink:light-dark(#13201a,#e7eee8);
+--muted:light-dark(#56665c,#93a59a);--rule:light-dark(#d3ddd5,#26372d);--turf:light-dark(#2b7646,#1d5534);
+--chalk:#f7f8f3;--paint:light-dark(#d9a710,#f2c230);--fit:#ff2e88;--bad:light-dark(#c2361f,#ff7a5c)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Barlow,system-ui,sans-serif;overflow-x:clip}
+h1{font:700 30px/1.05 "Barlow Semi Condensed",Barlow,sans-serif;margin:0;letter-spacing:.2px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 24px;padding:18px max(3vw,16px) 12px}
+.prog{color:var(--muted);font-size:15px}
+.prog b{color:var(--ink);font-weight:600}
+.bar{flex:1 1 220px;height:6px;border-radius:3px;background:var(--rule);overflow:hidden;align-self:center}
+.bar i{display:block;height:100%;background:var(--turf)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;padding:0 max(3vw,16px) 28px}
+.stagewrap{background:#000;border-radius:6px;overflow:hidden;position:relative}
+#stage{display:block;width:100%;cursor:crosshair;touch-action:none}
+#loupe{position:absolute;width:176px;height:176px;border-radius:50%;border:2px solid var(--chalk);box-shadow:0 4px 18px #0008;pointer-events:none;display:none}
+.nav{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+.nav .where{flex:1 1 200px;color:var(--muted);font-size:15px}
+.nav .where b{color:var(--ink);font-weight:600}
+button{font:600 15px Barlow,sans-serif;min-height:44px;padding:0 16px;border-radius:6px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);cursor:pointer}
+button:hover{border-color:var(--muted)}
+button:focus-visible,svg circle:focus-visible{outline:3px solid var(--paint);outline-offset:2px}
+button.go{background:var(--turf);border-color:var(--turf);color:#fff}
+button:disabled{opacity:.45;cursor:default}
+aside{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px}
+.card h2{font:600 18px/1.2 "Barlow Semi Condensed",sans-serif;margin:0 0 8px}
+.map svg{display:block;width:100%;height:auto;border-radius:4px}
+.map .lm{cursor:pointer}
+.side{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-top:4px}
+.wrow{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin-top:10px;font-size:14px}.wrow span{color:var(--muted);flex-basis:100%}.wrow label{display:flex;gap:6px;align-items:center;cursor:pointer;min-height:32px}.wrow input{width:18px;height:18px;margin:0;accent-color:var(--turf)}
+.fbl{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:14px;cursor:pointer}.fbl input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--turf)}
+.pick{margin:8px 0 0;font-size:15px;min-height:46px}
+.pick b{font-weight:600}
+.fit{font-size:15px}
+.fit.ok b{color:var(--turf)}.fit.bad b{color:var(--bad)}
+ul.pts{list-style:none;margin:8px 0 0;padding:0;font-size:14px}
+ul.pts li{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--rule)}
+ul.pts li span{flex:1}
+ul.pts li em{font-style:normal;color:var(--muted);font-variant-numeric:tabular-nums}
+ul.pts li em.hi{color:var(--bad);font-weight:600}
+ul.pts button{min-height:32px;padding:0 10px;font-size:13px}
+.hint{color:var(--muted);font-size:14px;margin:0}
+.keys{color:var(--muted);font-size:13px;margin:6px 0 0}
+kbd{font:600 12px Barlow,sans-serif;border:1px solid var(--rule);border-bottom-width:2px;border-radius:4px;padding:0 5px;color:var(--ink)}
+.note{display:none;background:var(--panel);border:1px solid var(--bad);border-radius:6px;padding:10px 14px;margin:0 max(3vw,16px) 14px;font-size:15px}
+.saved{color:var(--turf);font-weight:600}
+@media(max-width:900px){main{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Field landmark labeling</h1>
+  <div class="prog" id="prog">Loading frames</div>
+  <div class="bar" aria-hidden="true"><i id="barfill" style="width:0"></i></div>
+</header>
+<div class="note" id="note"></div>
+<main>
+  <section>
+    <div class="stagewrap" id="wrap"><canvas id="stage" aria-label="Game film frame"></canvas><canvas id="loupe" width="176" height="176"></canvas></div>
+    <div class="nav">
+      <button id="prev" aria-label="Previous frame">Previous</button>
+      <div class="where" id="where"></div>
+      <button id="skip">Skip frame</button>
+      <button id="clear">Clear points</button>
+      <button id="save" class="go">Save and next</button>
+    </div>
+  </section>
+  <aside>
+    <div class="card map">
+      <h2>Field map</h2>
+      <svg id="map" viewBox="-4 -4 118 68" role="group" aria-label="Field landmarks"></svg>
+      <div class="side"><span>Far sideline at top</span><span>Camera side at bottom</span></div>
+      <div class="wrow" id="wrow" role="radiogroup" aria-label="Field width for this game"><span>Field width for this game</span><label><input type="radio" name="w" id="w60" checked> 60 yd</label><label><input type="radio" name="w" id="w53"> 53⅓ yd</label></div>
+      <label class="fbl"><input type="checkbox" id="fbmode"> Football lines on this field (53⅓ yd wide; lacrosse midfield on the 50, goals on the 10s)</label>
+      <div class="wrow" id="hrow" role="radiogroup" aria-label="Hash mark spacing for this game" style="display:none"><span>Hash marks for this game</span><label><input type="radio" name="h" id="hhs" checked> High school, 53 ft 4 in in</label><label><input type="radio" name="h" id="hcol"> College, 60 ft in</label></div>
+      <p class="pick" id="pick">Pick a landmark here, then click exactly where it sits in the frame.</p>
+    </div>
+    <div class="card">
+      <h2>Fit</h2>
+      <div class="fit" id="fit">Place 4 landmarks to fit the field.</div>
+      <ul class="pts" id="pts"></ul>
+    </div>
+    <div class="card">
+      <p class="hint">Paint intersections are the most precise points: where box and restraining lines meet, line ends, crease edges, and on football fields where yard lines cross the sidelines or the hash marks. Click the middle of the paint. Once four or more points give a fit, the tool snaps the field onto the painted lines and checks how much of it matches. With faint paint, add a fifth point so your points can check each other. You can only save a checked fit, and the magenta field should sit right on the lines before you save. Skip close-ups, crowd shots and replays.</p>
+      <p class="keys"><kbd>Enter</kbd> save and next, <kbd>S</kbd> skip, <kbd>Z</kbd> undo point, <kbd>Esc</kbd> drop selection, arrow keys move between frames. Drag any point to adjust it.</p>
+    </div>
+    <div class="card">
+      <button id="copy">Copy all labels</button>
+      <span id="copied" class="saved"></span>
+    </div>
+  </aside>
+</main>
+<script>
+{
+const $=id=>document.getElementById(id);
+const GAMES={"scituate-hanover-2024":"Scituate vs Hanover, 2024","anne-arundel-carroll-2021":"Anne Arundel vs Carroll, 2021","stillwater-bsm-2025":"Stillwater vs BSM, 2025","jesuit-westview":"Jesuit vs Westview"};
+// Landmarks in yards; y measured from the camera-side sideline. c = field centre (width/2). USA Lacrosse 2026 field spec.
+const FB_N=[0,5,10,15,20,25,35,40,45];
+let hashD=17.78;
+function fbPoints(W){const o={};const add=(x,nm,key,side)=>{if(key!=="50"&&key!=="L30"&&key!=="R30"){o[`fb_${key}_near`]=[x,0,`${nm} at camera sideline`,1];o[`fb_${key}_far`]=[x,W,`${nm} at far sideline`,1]}
+o[`fb_${key}_hnear`]=[x,hashD,`${nm} at camera-side hash marks`,1];o[`fb_${key}_hfar`]=[x,W-hashD,`${nm} at far hash marks`,1]};
+for(const sd of ["L","R"])for(const N of [0,5,10,15,20,25,30,35,40,45]){const side=sd==="L"?"Left":"Right";add(sd==="L"?5+N:105-N,`${side} ${N===0?"goal line":N+"-yard line"}`,sd+N,side)}
+add(55,"50-yard line","50");return o}
+function landmarks(W,fb){return fb?{...laxPoints(W),...fbPoints(W)}:laxPoints(W)}
+function laxPoints(W){const c=W/2,lo=c-20,hi=c+20;return {
+corner_0_0:[0,0,"Left end line at camera sideline"],corner_0_60:[0,W,"Left end line at far sideline"],
+corner_110_0:[110,0,"Right end line at camera sideline"],corner_110_60:[110,W,"Right end line at far sideline"],
+restrain_L_near:[35,0,"Left restraining line at camera sideline"],restrain_L_far:[35,W,"Left restraining line at far sideline"],
+restrain_R_near:[75,0,"Right restraining line at camera sideline"],restrain_R_far:[75,W,"Right restraining line at far sideline"],
+center_near:[55,0,"Midfield line at camera sideline"],center_far:[55,W,"Midfield line at far sideline"],faceoff_X:[55,c,"Faceoff X"],
+boxL_near:[35,lo,"Left box corner on restraining line, camera side"],boxL_far:[35,hi,"Left box corner on restraining line, far side"],
+boxL_end_near:[0,lo,"Left box line at end line, camera side"],boxL_end_far:[0,hi,"Left box line at end line, far side"],
+boxR_near:[75,lo,"Right box corner on restraining line, camera side"],boxR_far:[75,hi,"Right box corner on restraining line, far side"],
+boxR_end_near:[110,lo,"Right box line at end line, camera side"],boxR_end_far:[110,hi,"Right box line at end line, far side"],
+wing_near_L:[45,lo,"Camera-side wing line, left end"],wing_near_R:[65,lo,"Camera-side wing line, right end"],
+wing_far_L:[45,hi,"Far wing line, left end"],wing_far_R:[65,hi,"Far wing line, right end"],
+creaseL_front:[18,c,"Left crease, front edge"],creaseL_back:[12,c,"Left crease, back edge"],creaseL_near:[15,c-3,"Left crease, camera-side edge"],creaseL_far:[15,c+3,"Left crease, far edge"],
+goalL_near:[15,c-1,"Left goal, camera-side post"],goalL_far:[15,c+1,"Left goal, far post"],
+creaseR_front:[92,c,"Right crease, front edge"],creaseR_back:[98,c,"Right crease, back edge"],creaseR_near:[95,c-3,"Right crease, camera-side edge"],creaseR_far:[95,c+3,"Right crease, far edge"],
+goalR_near:[95,c-1,"Right goal, camera-side post"],goalR_far:[95,c+1,"Right goal, far post"]};}
+function yardLines(W){const L=[];for(let x=5;x<=105;x+=5)L.push([[x,0],[x,W]]);return L}
+function fieldLines(W){const c=W/2,lo=c-20,hi=c+20;return [[[0,0],[110,0]],[[0,W],[110,W]],[[0,0],[0,W]],[[110,0],[110,W]],[[55,0],[55,W]],[[35,0],[35,W]],[[75,0],[75,W]],
+[[0,lo],[35,lo]],[[0,hi],[35,hi]],[[75,lo],[110,lo]],[[75,hi],[110,hi]],[[45,lo],[65,lo]],[[45,hi],[65,hi]],[[15,c-1],[15,c+1]],[[95,c-1],[95,c+1]]];}
+let fbMode=false;const fbGame={},widthGame={};let curWidth=60;
+const widths=()=>fbMode?[53.33]:[curWidth];
+const LMcur=()=>landmarks(fbMode?53.33:curWidth,fbMode);
+const SIDE_DEP=new Set(["corner_0_0","corner_0_60","corner_110_0","corner_110_60","restrain_L_near","restrain_L_far","restrain_R_near","restrain_R_far","center_near","center_far",...Object.keys(fbPoints(60))]);
+
+// ---------- homography (world yd -> image px), normalised DLT, smallest eigenvector by Jacobi ----------
+function norm(P){const n=P.length;let cx=0,cy=0;for(const p of P){cx+=p[0];cy+=p[1]}cx/=n;cy/=n;let d=0;for(const p of P)d+=Math.hypot(p[0]-cx,p[1]-cy);d/=n;const s=d>0?Math.SQRT2/d:1;return {s,cx,cy,T:[[s,0,-s*cx],[0,s,-s*cy],[0,0,1]]}}
+function mul(A,B){const n=A.length,m=B[0].length,k=B.length,C=[];for(let i=0;i<n;i++){C.push(new Array(m).fill(0));for(let j=0;j<m;j++)for(let t=0;t<k;t++)C[i][j]+=A[i][t]*B[t][j]}return C}
+function jacobiMin(M){const n=M.length,A=M.map(r=>r.slice()),V=M.map((r,i)=>r.map((_,j)=>i===j?1:0));
+for(let sw=0;sw<60;sw++){let off=0;for(let p=0;p<n;p++)for(let q=p+1;q<n;q++)off+=A[p][q]*A[p][q];if(off<1e-22)break;
+for(let p=0;p<n;p++)for(let q=p+1;q<n;q++){if(Math.abs(A[p][q])<1e-300)continue;const th=(A[q][q]-A[p][p])/(2*A[p][q]);const t=Math.sign(th||1)/(Math.abs(th)+Math.sqrt(th*th+1));const c=1/Math.sqrt(t*t+1),s=t*c;
+for(let k=0;k<n;k++){const akp=A[k][p],akq=A[k][q];A[k][p]=c*akp-s*akq;A[k][q]=s*akp+c*akq}
+for(let k=0;k<n;k++){const apk=A[p][k],aqk=A[q][k];A[p][k]=c*apk-s*aqk;A[q][k]=s*apk+c*aqk}
+for(let k=0;k<n;k++){const vkp=V[k][p],vkq=V[k][q];V[k][p]=c*vkp-s*vkq;V[k][q]=s*vkp+c*vkq}}}
+const ord=[...Array(n).keys()].sort((a,b)=>A[a][a]-A[b][b]);return {h:V.map(r=>r[ord[0]]),cond:Math.max(0,A[ord[1]][ord[1]])/Math.max(1e-30,A[ord[n-1]][ord[n-1]])}}
+function fitH(world,img){const nw=norm(world),ni=norm(img);const M=Array.from({length:9},()=>new Array(9).fill(0));
+for(let i=0;i<world.length;i++){const X=(world[i][0]-nw.cx)*nw.s,Y=(world[i][1]-nw.cy)*nw.s,u=(img[i][0]-ni.cx)*ni.s,v=(img[i][1]-ni.cy)*ni.s;
+for(const r of [[-X,-Y,-1,0,0,0,u*X,u*Y,u],[0,0,0,-X,-Y,-1,v*X,v*Y,v]])for(let a=0;a<9;a++)for(let b=0;b<9;b++)M[a][b]+=r[a]*r[b]}
+const J=jacobiMin(M),h=J.h;const Hn=[[h[0],h[1],h[2]],[h[3],h[4],h[5]],[h[6],h[7],h[8]]];
+const Tinv=[[1/ni.s,0,ni.cx],[0,1/ni.s,ni.cy],[0,0,1]];let H=mul(mul(Tinv,Hn),nw.T);
+const w0=H[2][0]*world[0][0]+H[2][1]*world[0][1]+H[2][2];if(w0<0)H=H.map(r=>r.map(x=>-x));const k=Math.abs(H[2][2])||1;H=H.map(r=>r.map(x=>x/k));H.cond=J.cond;return H}
+function proj(H,X,Y){const w=H[2][0]*X+H[2][1]*Y+H[2][2];if(w<=1e-6)return null;return [(H[0][0]*X+H[0][1]*Y+H[0][2])/w,(H[1][0]*X+H[1][1]*Y+H[1][2])/w]}
+function spread(world){const n=world.length;let mx=0,my=0;for(const p of world){mx+=p[0];my+=p[1]}mx/=n;my/=n;let a=0,b=0,c=0;for(const p of world){const dx=p[0]-mx,dy=p[1]-my;a+=dx*dx;b+=dx*dy;c+=dy*dy}a/=n;b/=n;c/=n;const tr=a+c,det=a*c-b*b;return Math.sqrt(Math.max(0,tr/2-Math.sqrt(Math.max(0,tr*tr/4-det))))}
+const COND_MIN=1e-7,CLICK_SD=2.0,Z_MAX=3.5,WEAK_SD=10,MC=24;
+function solve(names,pts,W){const L=landmarks(W,fbMode);const world=names.map(n=>[L[n][0],L[n][1]]),img=names.map(n=>pts[n]);
+if(names.length<4||spread(world)<1.5)return null;const H=fitH(world,img);if(!(H.cond>COND_MIN))return null;
+for(let i=0;i<names.length;i++)if(!proj(H,world[i][0],world[i][1]))return null;return {H,world,img}}
+function seeded(k){let x=k>>>0||1;return ()=>{x^=x<<13;x>>>=0;x^=x>>17;x^=x<<5;x>>>=0;return x/4294967296}}
+// Each point is checked against the others: refit without it, see where the rest put it, and compare the miss with how
+// precisely the rest can place it (estimated by re-fitting with the other clicks jittered by normal clicking error).
+function fitFrame(pts){const names=Object.keys(pts);if(names.length<4)return null;const W=widths()[0];
+const S=solve(names,pts,W);if(!S)return {degenerate:true};let ss=0;const res={},loo={},sd={},z={};
+names.forEach((n,i)=>{const q=proj(S.H,S.world[i][0],S.world[i][1]);const e=Math.hypot(q[0]-S.img[i][0],q[1]-S.img[i][1]);res[n]=e;ss+=e*e;
+  loo[n]=null;sd[n]=null;z[n]=null;if(names.length<5)return;const others=names.filter(m=>m!==n);const T=solve(others,pts,W);if(!T)return;
+  const p0=proj(T.H,S.world[i][0],S.world[i][1]);if(!p0)return;loo[n]=Math.hypot(p0[0]-S.img[i][0],p0[1]-S.img[i][1]);
+  const rnd=seeded(7919*(i+1)+names.length),g=()=>Math.sqrt(-2*Math.log(rnd()+1e-12))*Math.cos(6.283185*rnd());let acc=0,ok=0;
+  for(let k=0;k<MC;k++){const jp={};for(const m of others)jp[m]=[pts[m][0]+g()*CLICK_SD,pts[m][1]+g()*CLICK_SD];const J=solve(others,jp,W);if(!J)continue;const pk=proj(J.H,S.world[i][0],S.world[i][1]);if(!pk)continue;acc+=(pk[0]-p0[0])**2+(pk[1]-p0[1])**2;ok++}
+  if(ok<MC*.75){loo[n]=null;return}sd[n]=Math.sqrt(acc/ok/2);z[n]=loo[n]/Math.sqrt(sd[n]**2+CLICK_SD**2)});
+const unchecked=names.filter(n=>loo[n]==null||sd[n]>WEAK_SD),bad=names.filter(n=>z[n]!=null&&z[n]>Z_MAX);
+const worst=names.reduce((m,n)=>loo[n]==null?m:Math.max(m,loo[n]),0);
+return {W,H:S.H,rms:Math.sqrt(ss/names.length),res,loo,sd,z,unchecked,bad,worst,checked:names.length>=5&&unchecked.length===0,good:names.length>=5&&unchecked.length===0&&bad.length===0,widthKnown:true}}
+
+// ---------- paint: line-centre detection, distance field, match score, snap-to-paint ----------
+// Painted lines are thin bright ridges on darker turf: brightness above a local average, kept only at the ridge centre.
+function paintField(im){const W=im.width,H=im.height,d=im.data,g=new Float32Array(W*H);for(let i=0,j=0;i<W*H;i++,j+=4)g[i]=.3*d[j]+.59*d[j+1]+.11*d[j+2];
+const I=new Float64Array((W+1)*(H+1));for(let y=0;y<H;y++){let r=0;for(let x=0;x<W;x++){r+=g[y*W+x];I[(y+1)*(W+1)+x+1]=I[y*(W+1)+x+1]+r}}
+const R=9,rid=new Float32Array(W*H);for(let y=0;y<H;y++){const y0=Math.max(0,y-R),y1=Math.min(H,y+R+1);for(let x=0;x<W;x++){const x0=Math.max(0,x-R),x1=Math.min(W,x+R+1);
+const m=(I[y1*(W+1)+x1]-I[y0*(W+1)+x1]-I[y1*(W+1)+x0]+I[y0*(W+1)+x0])/((x1-x0)*(y1-y0));rid[y*W+x]=g[y*W+x]-m}}
+const on=new Uint8Array(W*H);for(let y=3;y<H-3;y++)for(let x=3;x<W-3;x++){const i=y*W+x,v=rid[i];if(v<14)continue;
+let hx=true,hy=true;for(let k=1;k<=3;k++){if(rid[i-k]>v||rid[i+k]>v)hx=false;if(rid[i-k*W]>v||rid[i+k*W]>v)hy=false}if(hx||hy)on[i]=1}
+return {W,H,dt:edt(on,W,H),on}}
+function edt1(f,n,dd,v,z){let k=0;v[0]=0;z[0]=-1e20;z[1]=1e20;for(let q=1;q<n;q++){let s;while(true){const r=v[k];s=((f[q]+q*q)-(f[r]+r*r))/(2*q-2*r);if(s<=z[k]){k--;continue}break}k++;v[k]=q;z[k]=s;z[k+1]=1e20}
+k=0;for(let q=0;q<n;q++){while(z[k+1]<q)k++;const r=v[k];dd[q]=(q-r)*(q-r)+f[r]}}
+function edt(on,W,H){const INF=1e10,o=new Float32Array(W*H),N=Math.max(W,H),f=new Float64Array(N),dd=new Float64Array(N),v=new Int32Array(N),z=new Float64Array(N+1);
+for(let x=0;x<W;x++){for(let y=0;y<H;y++)f[y]=on[y*W+x]?0:INF;edt1(f,H,dd,v,z);for(let y=0;y<H;y++)o[y*W+x]=dd[y]}
+for(let y=0;y<H;y++){for(let x=0;x<W;x++)f[x]=o[y*W+x];edt1(f,W,dd,v,z);for(let x=0;x<W;x++)o[y*W+x]=Math.sqrt(dd[x])}return o}
+function dtAt(P,u,v){const x=Math.floor(u),y=Math.floor(v);if(x<0||y<0||x>=P.W-1||y>=P.H-1)return null;const a=u-x,b=v-y,i=y*P.W+x,D=P.dt;
+return (D[i]*(1-a)+D[i+1]*a)*(1-b)+(D[i+P.W]*(1-a)+D[i+P.W+1]*a)*b}
+// World samples along the lines this field actually has painted.
+function paintSamples(W){const out=[],seg=(a,b,step)=>{const L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(2,Math.ceil(L/step)),nx=-(b[1]-a[1])/L,ny=(b[0]-a[0])/L;for(let i=0;i<=n;i++)out.push([a[0]+(b[0]-a[0])*i/n,a[1]+(b[1]-a[1])*i/n,nx,ny])};
+if(fbMode){for(const [a,b] of yardLines(W))seg(a,b,.5);for(let X=5;X<=105;X++){out.push([X,hashD,0,1]);out.push([X,W-hashD,0,1])}}// hash ticks sit at every yard on both hash rows: they anchor the across-field direction// sidelines on football fields are wide border bands whose centre is not the sideline: yard lines only
+else{for(const [a,b] of fieldLines(W))seg(a,b,.5);for(const gx of [15,95])for(let i=0;i<72;i++){const t=i/72*6.2832;out.push([gx+3*Math.cos(t),W/2+3*Math.sin(t),Math.cos(t),Math.sin(t)])}}return out}
+const MATCH_PX=2.5,TRUNC=6,EDGE=6,MASKS=[];// MASKS: screen boxes to ignore (score bugs), in image px
+function visibleSamples(H,samples,P){const r=[];for(const s of samples){const q=proj(H,s[0],s[1]);if(!q||q[0]<EDGE||q[1]<EDGE||q[0]>P.W-EDGE||q[1]>P.H-EDGE)continue;if(MASKS.some(m=>q[0]>m[0]&&q[0]<m[2]&&q[1]>m[1]&&q[1]<m[3]))continue;r.push(s)}return r}
+function matchAt(H,P,S,off){let hit=0,n=0;for(const s of S){const q=proj(H,s[0]+off*s[2],s[1]+off*s[3]);if(!q)continue;const d=dtAt(P,q[0],q[1]);if(d==null)continue;n++;if(d<=MATCH_PX)hit++}return n?hit/n:0}
+// Match = share of visible line samples on paint. Background = each sample slid 1.5 and 2.5 yd across its own line;
+// a real fit stands far above its shifted copies, a chance match on players or clutter does not.
+function paintMatch(H,P,W){const S=visibleSamples(H,paintSamples(W),P);if(S.length<40)return null;const frac=matchAt(H,P,S,0);
+const bg=[2.5,-2.5,1.5,-1.5].map(o=>matchAt(H,P,S,o));const back=bg.reduce((a,b)=>a+b,0)/bg.length;return {frac,back,n:S.length}}
+// Gauss-Newton on the 8 homography parameters: pull every visible line sample onto the nearest paint centre (truncated so
+// occluded or unpainted stretches are ignored) while keeping each click close to where it was put.
+function snapToPaint(H0,P,W,clickW,clickI){let h=[H0[0][0],H0[0][1],H0[0][2],H0[1][0],H0[1][1],H0[1][2],H0[2][0],H0[2][1]];const toH=h=>[[h[0],h[1],h[2]],[h[3],h[4],h[5]],[h[6],h[7],1]];
+const S=visibleSamples(H0,paintSamples(W),P);if(S.length<40)return null;const CW=.5;
+function resid(h){const H=toH(h),r=[];for(const s of S){const q=proj(H,s[0],s[1]);let d=q?dtAt(P,q[0],q[1]):null;if(d==null||d>TRUNC)d=TRUNC;r.push(d)}
+for(let i=0;i<clickW.length;i++){const q=proj(H,clickW[i][0],clickW[i][1]);if(!q){r.push(50,50);continue}r.push(CW*(q[0]-clickI[i][0]),CW*(q[1]-clickI[i][1]))}return r}
+let r=resid(h),cost=r.reduce((a,b)=>a+b*b,0),lam=1e-3;
+for(let it=0;it<25;it++){const J=[];for(let k=0;k<8;k++){const d=Math.max(1e-7,Math.abs(h[k])*1e-4),hp=h.slice();hp[k]+=d;const rp=resid(hp);J.push(rp.map((v,i)=>(v-r[i])/d))}
+const A=Array.from({length:8},()=>new Array(8).fill(0)),g=new Array(8).fill(0);for(let i=0;i<r.length;i++)for(let a=0;a<8;a++){if(!J[a][i])continue;g[a]+=J[a][i]*r[i];for(let b=a;b<8;b++)A[a][b]+=J[a][i]*J[b][i]}
+for(let a=0;a<8;a++)for(let b=0;b<a;b++)A[a][b]=A[b][a];let improved=false;
+for(let tries=0;tries<6&&!improved;tries++){const M=A.map((row,i)=>row.map((v,j)=>i===j?v*(1+lam):v)),step=gauss(M,g.map(x=>-x));if(!step)break;const hn=h.map((v,k)=>v+step[k]);const rn=resid(hn),cn=rn.reduce((a,b)=>a+b*b,0);
+if(cn<cost){h=hn;r=rn;improved=cost-cn>1e-6*cost;cost=cn;lam=Math.max(1e-7,lam/3);if(!improved)break}else lam*=4}if(!improved)break}
+const H=toH(h);H.cond=H0.cond;return H}
+function gauss(A,b){const n=b.length,M=A.map((r,i)=>[...r,b[i]]);for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;if(Math.abs(M[p][c])<1e-18)return null;[M[c],M[p]]=[M[p],M[c]];
+for(let r=0;r<n;r++){if(r===c)continue;const f=M[r][c]/M[c][c];for(let k=c;k<=n;k++)M[r][k]-=f*M[c][k]}}return M.map((r,i)=>r[n]/r[i])}
+
+// ---------- state ----------
+let PF=null,V=null,frames=[],idx=0,labels={},drafts={},pts={},active=null,hoverLm=null,fit=null,dirty=false,db=null,img=new Image(),imgW=1280,imgH=720,drag=null;
+const stage=$("stage"),ctx=stage.getContext("2d"),loupe=$("loupe"),lctx=loupe.getContext("2d");
+const over=document.createElement("canvas"),octx=over.getContext("2d");
+
+function svgMap(){const W=fbMode?53.33:curWidth,c=W/2,L=LMcur();$("map").setAttribute("viewBox",`-4 -4 118 ${(W+8).toFixed(2)}`);let s=`<rect x="-4" y="-4" width="118" height="${W+8}" fill="var(--turf)"/>`;
+const fy=y=>W-y;if(fbMode)for(const y of [hashD,W-hashD])s+=`<line x1="5" y1="${fy(y)}" x2="105" y2="${fy(y)}" stroke="#f7f8f3" stroke-opacity=".25" stroke-width=".25" stroke-dasharray=".4 .6"/>`;
+if(fbMode)for(const [[a,b],[d,e]] of yardLines(W))s+=`<line x1="${a}" y1="${fy(b)}" x2="${d}" y2="${fy(e)}" stroke="#f7f8f3" stroke-opacity=".35" stroke-width=".3"/>`;for(const [[a,b],[d,e]] of fieldLines(W))s+=`<line x1="${a}" y1="${fy(b)}" x2="${d}" y2="${fy(e)}" stroke="#f7f8f3" stroke-width=".45"/>`;
+for(const gx of [15,95])s+=`<circle cx="${gx}" cy="${fy(c)}" r="3" fill="none" stroke="#f7f8f3" stroke-width=".45"/>`;
+for(const n of Object.keys(L)){const [x,y,label,isFb]=L[n];s+=`<circle class="lm" data-n="${n}" data-fb="${isFb?1:""}" tabindex="0" role="button" aria-label="${label}" cx="${x}" cy="${fy(y)}" r="${isFb?1:1.7}" fill="#f7f8f3" stroke="#13201a" stroke-width=".35"><title>${label}</title></circle>`}
+$("map").innerHTML=s;
+$("map").querySelectorAll(".lm").forEach(el=>{el.addEventListener("click",()=>selectLm(el.dataset.n));el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();selectLm(el.dataset.n)}});
+el.addEventListener("mouseenter",()=>{hoverLm=el.dataset.n;draw()});el.addEventListener("mouseleave",()=>{hoverLm=null;draw()})})}
+function paintMap(){$("map").querySelectorAll(".lm").forEach(el=>{const n=el.dataset.n,placed=n in pts;
+const base=el.dataset.fb?1:1.7;el.setAttribute("fill",n===active?"var(--paint)":placed?"#13201a":"#f7f8f3");el.setAttribute("r",n===active?base+.7:placed?base+.2:base);el.setAttribute("stroke",placed?"var(--paint)":"#13201a");el.setAttribute("stroke-width",placed?".7":".35")})}
+function selectLm(n){active=active===n?null:n;const L=LMcur()[n];$("pick").innerHTML=active?`Now click <b></b> in the frame.`:"Pick a landmark here, then click exactly where it sits in the frame.";if(active)$("pick").querySelector("b").textContent=L[2];paintMap()}
+
+const SNAP_MOVE=15,PAINT_OK=.75,AGREE_PX=10;
+function inv3(m){const [a,b,c]=m[0],[d,e,f]=m[1],[g,h,i]=m[2],A=e*i-f*h,B=-(d*i-f*g),C=d*h-e*g,det=a*A+b*B+c*C;if(Math.abs(det)<1e-18)return null;
+return [[A/det,-(b*i-c*h)/det,(b*f-c*e)/det],[B/det,(a*i-c*g)/det,-(a*f-c*d)/det],[C/det,-(a*h-b*g)/det,(a*e-b*d)/det]]}
+function toField(Hi,u,v){const w=Hi[2][0]*u+Hi[2][1]*v+Hi[2][2];return [(Hi[0][0]*u+Hi[0][1]*v+Hi[0][2])/w,(Hi[1][0]*u+Hi[1][1]*v+Hi[1][2])/w]}
+function verify(){V=null;if(!fit||fit.degenerate||!fit.H)return;const W=fit.W,names=Object.keys(pts),L=landmarks(W,fbMode);
+const v={H:fit.H,pm0:PF?paintMatch(fit.H,PF,W):null,pm:null,moves:{},snapped:false};v.pm=v.pm0;
+if(PF&&v.pm0){const H2=snapToPaint(fit.H,PF,W,names.map(n=>L[n]),names.map(n=>pts[n]));if(H2){const pm1=paintMatch(H2,PF,W),mv={};let mx=0;
+for(const n of names){const q=proj(H2,L[n][0],L[n][1]);const d=q?Math.hypot(q[0]-pts[n][0],q[1]-pts[n][1]):1e9;mv[n]=d;mx=Math.max(mx,d)}
+v.snapCand={pm:pm1,maxMove:mx};if(pm1&&pm1.frac>=v.pm0.frac&&mx<=SNAP_MOVE){v.H=H2;v.pm=pm1;v.moves=mv;v.snapped=true;
+const Hi=inv3(H2);v.yd={};for(const n of names){const w=Hi?toField(Hi,pts[n][0],pts[n][1]):[1e9,1e9];v.yd[n]=Math.hypot(w[0]-L[n][0],w[1]-L[n][1])}}}}
+v.offPts=v.snapped?names.filter(n=>v.moves[n]>AGREE_PX):[];v.paintMatchOK=!!(v.snapped&&v.pm&&v.pm.frac>=PAINT_OK&&v.pm.frac-v.pm.back>=.4);v.paintOK=v.paintMatchOK&&v.offPts.length===0&&names.length>=4;v.pointsOK=!!fit.good;v.review=v.paintMatchOK&&v.offPts.length>0&&names.length>=5;v.good=v.paintOK||(v.pointsOK&&!v.offPts.length);v.quality=v.paintOK?"paint":v.pointsOK&&!v.offPts.length?"points":v.review?"paint_points_disagree":null;V=v}
+function refit(){fit=fitFrame(pts);verify();const f=$("fit"),n=Object.keys(pts).length,L=LMcur();
+const name=k=>((L[k]||[0,0,k])[2]).toLowerCase(),list=ks=>ks.map(name).join(" and "),say=(cls,head,body,note)=>{f.className="fit "+cls;f.textContent="";const b=document.createElement("b");b.textContent=head;f.append(b," "+body);
+  if(note){const d=document.createElement("div");d.style.cssText="margin-top:6px;color:var(--muted)";d.textContent=note;f.append(d)}};
+const setting=fbMode?"the hash setting":"the field width";
+if(n<4)say("",`Place ${4-n} more landmark${4-n===1?"":"s"}`,"to fit the field.");
+else if(!fit||fit.degenerate)say("bad","No fit.","Most of these points lie along one line, which can't pin down the field. Add points away from that line.");
+else if(V&&V.paintOK)say("ok","Checked against the paint.",`${Math.round(V.pm.frac*100)}% of the field lines in view sit on painted lines, and every point agrees with them. Look it over, then save.`);
+else if(V&&V.paintMatchOK&&V.offPts.length){const k=V.offPts;say("bad","Points disagree with the paint.",`The lines match, but the ${list(k)} ${k.length>1?"are":"is"} ${k.map(x=>Math.round(V.moves[x])).join(" and ")} px away. Zoom in and recheck ${k.length>1?"those points":"it"}.`,
+  V.review?`If ${k.length>1?"they're":"it's"} exactly on the paint, save anyway: ${setting} or the lens may be the cause, and the training step settles that across all of this game's frames.`:"Add a fifth point to save this frame for review.")}
+else{const why=!PF?"The paint check isn't available for this frame.":!V||!V.pm?"Not enough field lines in view to check against the paint.":V.snapCand&&V.snapCand.maxMove>SNAP_MOVE?`Snapping to the paint would move a point ${Math.round(V.snapCand.maxMove)} px, so it wasn't applied; check your points against the lines.`:`Only ${Math.round(V.pm.frac*100)}% of the field lines in view sit on paint (faint lines, or a point is off).`;
+  if(n<5)say("bad","Unchecked.","Add a fifth point so your points can check each other.",why);
+  else if(fit.bad.length)say("bad","Points disagree.",`The other points place the ${list(fit.bad)} somewhere else. Recheck ${fit.bad.length>1?"those points":"it"}, or ${setting}.`,why);
+  else if(fit.unchecked.length)say("bad","Unchecked.",`The other points can only loosely place the ${list(fit.unchecked)}. Add a point far from the line most of these sit on.`,why);
+  else say("ok","Checked by your points.","Every point agrees with where the others put it. Make sure the magenta field sits on the lines everywhere before saving.",why)}
+const ul=$("pts");ul.innerHTML="";for(const n of Object.keys(pts)){const li=document.createElement("li");const sp=document.createElement("span");sp.textContent=(LMcur()[n]||[0,0,n])[2];const em=document.createElement("em");
+let txt="",hi=false;if(V&&V.snapped&&V.paintMatchOK){const d=V.moves[n];txt=d<=3?"on the line":Math.round(d)+" px off";hi=d>AGREE_PX;em.title="About "+V.yd[n].toFixed(1)+" yd on the field";em.title="Distance from the field fitted to the paint"}
+else{const e=fit&&fit.loo?fit.loo[n]:undefined,weak=fit&&fit.sd&&(e==null||fit.sd[n]>WEAK_SD),isBad=fit&&fit.z&&fit.z[n]>Z_MAX;txt=!fit||!fit.loo||Object.keys(pts).length<5?"":isBad?"off "+Math.round(e)+" px":weak?"unchecked":"agrees";hi=isBad||weak;em.title=e==null?"":"The other points put this one "+e.toFixed(1)+" px away"}
+em.textContent=txt;if(hi)em.className="hi";const b=document.createElement("button");b.textContent="Remove";b.setAttribute("aria-label","Remove "+((LMcur()[n]||[0,0,n])[2]));
+b.onclick=()=>{delete pts[n];dirty=true;refit();draw()};li.append(sp,em,b);ul.append(li)}
+paintMap();$("save").disabled=!(V&&(V.good||V.review));$("save").textContent=V&&!V.good&&V.review?"Save, points are on the paint":"Save and next"}
+
+function drawOverlay(){over.width=imgW;over.height=imgH;octx.clearRect(0,0,imgW,imgH);
+if(fit&&fit.H&&!fit.degenerate){const H=V?V.H:fit.H,W=fit.W;octx.strokeStyle="#ff2e88";octx.lineWidth=2;octx.lineJoin="round";
+const poly=P=>{let on=false;octx.beginPath();for(const [x,y] of P){const q=proj(H,x,y);if(!q||Math.abs(q[0])>imgW*6||Math.abs(q[1])>imgH*6){on=false;continue}on?octx.lineTo(q[0],q[1]):octx.moveTo(q[0],q[1]);on=true}octx.stroke()};
+for(const [[a,b],[d,e]] of fieldLines(W)){const P=[];for(let i=0;i<=60;i++){const t=i/60;P.push([a+(d-a)*t,b+(e-b)*t])}poly(P)}
+if(fbMode){octx.save();octx.globalAlpha=.55;octx.lineWidth=1.2;for(const [[a,b],[d,e]] of yardLines(W)){const P=[];for(let i=0;i<=60;i++){const t=i/60;P.push([a+(d-a)*t,b+(e-b)*t])}poly(P)}for(let x=5;x<=105;x+=5)for(const y of [hashD,W-hashD])poly([[x-1,y],[x+1,y]]);octx.restore();octx.lineWidth=2}
+for(const gx of [15,95]){const P=[];for(let i=0;i<=72;i++){const t=i/72*2*Math.PI;P.push([gx+3*Math.cos(t),W/2+3*Math.sin(t)])}poly(P)}
+const L=landmarks(W,fbMode);for(const n of Object.keys(L)){if(n in pts)continue;const q=proj(H,L[n][0],L[n][1]);if(!q)continue;octx.beginPath();octx.arc(q[0],q[1],n===hoverLm?9:4,0,7);octx.strokeStyle="#ff2e88";octx.lineWidth=n===hoverLm?3:1.5;octx.stroke()}}
+else if(hoverLm){}
+for(const [n,[u,v]] of Object.entries(pts)){const bad=V&&V.snapped&&V.paintMatchOK?V.moves[n]>AGREE_PX:(fit&&fit.z&&fit.z[n]>Z_MAX);octx.beginPath();octx.arc(u,v,7,0,7);octx.lineWidth=2.5;octx.strokeStyle=bad?"#ff5c3c":(n===hoverLm?"#ffffff":"#f2c230");octx.stroke();
+octx.beginPath();octx.arc(u,v,1.6,0,7);octx.fillStyle=bad?"#ff5c3c":"#f2c230";octx.fill()}}
+function sizeStage(){const r=$("wrap").getBoundingClientRect();const maxH=Math.max(260,innerHeight*0.72);let w=r.width,h=w*imgH/imgW;if(h>maxH){h=maxH;w=h*imgW/imgH}
+const d=devicePixelRatio||1;stage.style.width=w+"px";stage.style.height=h+"px";stage.style.margin="0 auto";stage.width=Math.round(w*d);stage.height=Math.round(h*d);draw()}
+function draw(){if(!stage.width||!stage.height)return;drawOverlay();ctx.clearRect(0,0,stage.width,stage.height);if(img.complete&&img.naturalWidth)ctx.drawImage(img,0,0,stage.width,stage.height);ctx.drawImage(over,0,0,stage.width,stage.height)}
+function toImg(e){const r=stage.getBoundingClientRect();return [(e.clientX-r.left)/r.width*imgW,(e.clientY-r.top)/r.height*imgH]}
+function showLoupe(e){const r=stage.getBoundingClientRect(),wr=$("wrap").getBoundingClientRect();const [u,v]=toImg(e);const Z=4,R=88,s=R/Z*(imgW/r.width);
+lctx.clearRect(0,0,176,176);lctx.save();lctx.beginPath();lctx.arc(88,88,88,0,7);lctx.clip();lctx.fillStyle="#000";lctx.fillRect(0,0,176,176);
+lctx.drawImage(img,u-s,v-s,2*s,2*s,0,0,176,176);if(over.width)lctx.drawImage(over,u-s,v-s,2*s,2*s,0,0,176,176);lctx.strokeStyle="#ffffffcc";lctx.lineWidth=1;lctx.beginPath();lctx.moveTo(88,70);lctx.lineTo(88,106);lctx.moveTo(70,88);lctx.lineTo(106,88);lctx.stroke();lctx.restore();
+let x=e.clientX-wr.left+24,y=e.clientY-wr.top-200;if(y<4)y=e.clientY-wr.top+24;if(x+180>wr.width)x=e.clientX-wr.left-200;loupe.style.left=x+"px";loupe.style.top=y+"px";loupe.style.display="block"}
+stage.addEventListener("pointerdown",e=>{const [u,v]=toImg(e);const sc=imgW/stage.getBoundingClientRect().width;let near=null,bd=14*sc;
+for(const [n,[pu,pv]] of Object.entries(pts)){const d=Math.hypot(pu-u,pv-v);if(d<bd){bd=d;near=n}}
+if(near&&!active){drag=near;stage.setPointerCapture(e.pointerId);return}
+if(active){pts[active]=[u,v];active=null;$("pick").textContent="Pick the next landmark on the field map.";dirty=true;refit();draw();showLoupe(e)}});
+stage.addEventListener("pointermove",e=>{if(drag){pts[drag]=toImg(e);dirty=true;refit();draw()}showLoupe(e)});
+stage.addEventListener("pointerup",()=>{drag=null});stage.addEventListener("pointerleave",()=>{if(!drag)loupe.style.display="none"});
+
+function progress(){const done=frames.filter(f=>labels[f.id]&&!labels[f.id].skip).length,sk=frames.filter(f=>labels[f.id]&&labels[f.id].skip).length,left=frames.length-done-sk;
+$("prog").innerHTML="";const b=document.createElement("b");b.textContent=done;$("prog").append(b,` labeled, ${sk} skipped, ${left} to go. Aim for 200 labeled frames, spread across all four games.`);$("barfill").style.width=(frames.length?(done+sk)/frames.length*100:0)+"%"}
+function load(i){if(dirty)stash();idx=(i+frames.length)%frames.length;const f=frames[idx];const L=labels[f.id];pts=drafts[f.id]?{...drafts[f.id]}:(L&&L.pts?Object.fromEntries(Object.entries(L.pts).map(([k,v])=>[k,v.slice()])):{});
+active=null;dirty=false;if(!(f.game in fbGame))fbGame[f.game]=Object.values(labels).some(x=>x.game===f.game&&x.field==="football");if(!(f.game in widthGame)){const prev=Object.values(labels).find(x=>x.game===f.game&&x.width&&x.field!=="football");widthGame[f.game]=prev?prev.width:60}curWidth=widthGame[f.game];$("w60").checked=curWidth===60;$("w53").checked=curWidth!==60;
+if(!(f.game in hashGame)){const prev=Object.values(labels).find(x=>x.game===f.game&&x.hash);hashGame[f.game]=prev?prev.hash:17.78}hashD=hashGame[f.game];$("hhs").checked=hashD<19;$("hcol").checked=hashD>=19;
+setMode(fbGame[f.game]||Object.keys(pts).some(k=>k.startsWith("fb_")),false);$("pick").textContent="Pick a landmark here, then click exactly where it sits in the frame.";
+const w=$("where");w.innerHTML="";const b=document.createElement("b");b.textContent=GAMES[f.game]||f.game;const t=+f.id.split("_t").pop();
+w.append(b,`, ${Math.floor(t/60)}:${String(t%60).padStart(2,"0")} into the film. Frame ${idx+1} of ${frames.length}`);if(L){const s=document.createElement("span");s.className="saved";s.textContent=L.skip?". Skipped":". Saved";w.append(s)}
+img=new Image();PF=null;const myIdx=idx;frameURL(f).then(u=>{if(idx===myIdx)img.src=u}).catch(()=>note("This frame didn't load. Move on and come back to it."));img.onload=()=>{imgW=img.naturalWidth;imgH=img.naturalHeight;try{const c=document.createElement("canvas");c.width=imgW;c.height=imgH;const x=c.getContext("2d");x.drawImage(img,0,0);PF=paintField(x.getImageData(0,0,imgW,imgH))}catch(e){PF=null}refit();sizeStage()};refit();draw()}
+const bundles={},urls={};function frameURL(f){if(urls[f.id])return Promise.resolve(urls[f.id]);if(!f.file)return Promise.resolve("frames/"+f.id+".jpg");
+bundles[f.file]=bundles[f.file]||fetch(f.file).then(r=>{if(!r.ok)throw new Error(r.status);return r.arrayBuffer()});
+return bundles[f.file].then(buf=>urls[f.id]=URL.createObjectURL(new Blob([buf.slice(f.off,f.off+f.len)],{type:"image/jpeg"})))}
+function stash(){const f=frames[idx];if(V&&V.good)persist(false);else drafts[f.id]={...pts}}
+async function persist(skip){const f=frames[idx];const doc=skip?{frame:f.id,game:f.game,skip:true,at:Date.now()}:
+{frame:f.id,game:f.game,skip:false,img:[imgW,imgH],pts:Object.fromEntries(Object.entries(pts).map(([k,v])=>[k,[+v[0].toFixed(1),+v[1].toFixed(1)]])),field:fbMode?"football":"lacrosse",hash:fbMode?hashD:null,world:Object.fromEntries(Object.keys(pts).map(k=>{const L=landmarks(fit.W,fbMode)[k];return [k,[+L[0].toFixed(3),+L[1].toFixed(3)]]})),width:fit.W,widthKnown:!!fit.widthKnown,rms:+fit.rms.toFixed(2),loo_worst:+fit.worst.toFixed(2),z_max:+Math.max(0,...Object.values(fit.z).filter(v=>v!=null)).toFixed(2),loo:Object.fromEntries(Object.entries(fit.loo).map(([k,v])=>[k,v==null?null:+v.toFixed(2)])),H:V.H.slice(0,3).flat().map(x=>+x.toPrecision(9)),H_clicks:fit.H.slice(0,3).flat().map(x=>+x.toPrecision(9)),quality:V.quality,snapped:V.snapped,paint_match:V.pm?+V.pm.frac.toFixed(3):null,paint_background:V.pm?+V.pm.back.toFixed(3):null,paint_samples:V.pm?V.pm.n:0,click_off:Object.fromEntries(Object.entries(V.moves).map(([k,v])=>[k,+v.toFixed(1)])),click_off_yd:V.yd?Object.fromEntries(Object.entries(V.yd).map(([k,v])=>[k,+v.toFixed(2)])):{},at:Date.now()};
+labels[f.id]=doc;delete drafts[f.id];dirty=false;progress();if(db){try{await db.collection("labels").doc(f.id).set(doc)}catch(err){note("Couldn't save to the shared store: "+(err&&err.message||err)+". Your labels are kept on this page; use Copy all labels before closing.")}}}
+function nextOpen(from){for(let k=1;k<=frames.length;k++){const j=(from+k)%frames.length;if(!labels[frames[j].id])return j}return (from+1)%frames.length}
+$("save").onclick=async()=>{if(!(V&&(V.good||V.review)))return;await persist(false);load(nextOpen(idx))};
+$("skip").onclick=async()=>{pts={};await persist(true);load(nextOpen(idx))};
+$("clear").onclick=()=>{pts={};dirty=true;refit();draw()};$("prev").onclick=()=>load(idx-1);
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(Object.values(labels)));$("copied").textContent=" Copied "+Object.keys(labels).length+" frames"}catch(e){$("copied").textContent=" Copy was blocked by the browser"}};
+addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;if(e.key==="Enter"&&!e.target.closest("button,[role=button]")){e.preventDefault();$("save").click()}
+else if(e.key==="s"||e.key==="S")$("skip").click();else if(e.key==="z"||e.key==="Z"){const k=Object.keys(pts);if(k.length){delete pts[k[k.length-1]];dirty=true;refit();draw()}}
+else if(e.key==="Escape"){active=null;paintMap();$("pick").textContent="Pick a landmark here, then click exactly where it sits in the frame."}else if(e.key==="ArrowRight")load(idx+1);else if(e.key==="ArrowLeft")load(idx-1)});
+function setWidth(w,user){curWidth=w;$("w60").checked=w===60;$("w53").checked=w!==60;if(user)widthGame[frames[idx].game]=w;svgMap();refit();draw()}
+$("w60").addEventListener("change",()=>setWidth(60,true));$("w53").addEventListener("change",()=>setWidth(53.33,true));
+const hashGame={};function setHash(h,user){hashD=h;$("hhs").checked=h<19;$("hcol").checked=h>=19;if(user)hashGame[frames[idx].game]=h;svgMap();refit();draw()}
+$("hhs").addEventListener("change",()=>setHash(17.78,true));$("hcol").addEventListener("change",()=>setHash(20,true));
+function setMode(on,user){fbMode=!!on;$("fbmode").checked=fbMode;$("wrow").style.display=fbMode?"none":"flex";$("hrow").style.display=fbMode?"flex":"none";if(user){fbGame[frames[idx].game]=fbMode;if(!fbMode){let rm=false;for(const k of Object.keys(pts))if(k.startsWith("fb_")){delete pts[k];rm=true}if(rm)dirty=true}}
+svgMap();refit();draw()}
+$("fbmode").addEventListener("change",e=>setMode(e.target.checked,true));
+function note(t){const n=$("note");n.textContent=t;n.style.display="block"}
+new ResizeObserver(sizeStage).observe($("wrap"));
+if(location.hash==="#selftest")window.__lt={paintField,paintMatch,snapToPaint,fitFrame,proj,landmarks,mode:(fb,w,h)=>{fbMode=fb;curWidth=w;hashD=h}};
+svgMap();
+(async()=>{try{frames=await (await fetch("manifest.json")).json()}catch(e){note("The frame list didn't load. Reload the page.");return}
+progress();load(0);
+const api=window.claude&&window.claude.use?await window.claude.use("db"):null;db=api;
+if(!db){note("Saving isn't available in this view (sign in to Claude to save). You can still label and use Copy all labels.");return}
+const t=setTimeout(()=>note("The saved labels are slow to load; anything you label now still saves."),10000);
+try{const snap=await db.collection("labels").get();clearTimeout(t);const docs=snap.docs||snap;for(const d of docs){const x=d.data?d.data():d;if(x&&x.frame)labels[x.frame]=x}}catch(e){clearTimeout(t);note("Couldn't read saved labels: "+(e&&e.message||e))}
+progress();load(nextOpen(-1))})();
+}
+</script>
+</body>
+</html>
