@@ -12,11 +12,12 @@ IMG_W, IMG_H = 1280, 720
 
 
 def distort(q, k1, size=(IMG_W, IMG_H)):
-    """One-parameter radial lens model shared with game_solve: p_d = c + (p_u - c)(1 + k1 r^2), r = |p_u - c| / max(w,h)."""
+    """One-parameter radial lens model shared with game_solve: p_d = c + (p_u - c)(1 + k1 r^2), r = |p_u - c| / max(w,h),
+    c = the image centre in index coordinates ((w-1)/2, (h-1)/2), so the model is symmetric under a horizontal flip."""
     q = np.asarray(q, float)
     if not k1:
         return q
-    c = np.array([size[0] / 2, size[1] / 2]); S = float(max(size))
+    c = np.array([(size[0] - 1) / 2, (size[1] - 1) / 2]); S = float(max(size))
     d = q - c; r2 = (d ** 2).sum(-1, keepdims=True) / S ** 2
     return c + d * (1 + k1 * r2)
 
@@ -25,7 +26,7 @@ def distort_valid(q, k1, size=(IMG_W, IMG_H), margin=0.5):
     """Points (undistorted) where the lens model is used: within `margin` image sizes of the frame, and where the
     radial map is still monotonic (1 + 3 k1 r^2 > 0.2). Outside, a barrel model folds far points back into view."""
     q = np.asarray(q, float)
-    c = np.array([size[0] / 2, size[1] / 2]); S = float(max(size))
+    c = np.array([(size[0] - 1) / 2, (size[1] - 1) / 2]); S = float(max(size))
     r2 = ((q - c) ** 2).sum(-1) / S ** 2
     inside = (q[..., 0] > -margin * size[0]) & (q[..., 0] < (1 + margin) * size[0]) & \
              (q[..., 1] > -margin * size[1]) & (q[..., 1] < (1 + margin) * size[1])
@@ -37,7 +38,7 @@ def undistort(q, k1, size=(IMG_W, IMG_H), iters=30):
     q = np.asarray(q, float)
     if not k1:
         return q
-    c = np.array([size[0] / 2, size[1] / 2]); S = float(max(size))
+    c = np.array([(size[0] - 1) / 2, (size[1] - 1) / 2]); S = float(max(size))
     d = q - c; rd = np.sqrt((d ** 2).sum(-1)) / S
     ru = rd.copy()
     for _ in range(iters):
@@ -135,14 +136,14 @@ def fake_label(frame, game, H, W, fb, hashD_true, rng, k1=0.0, click_sd=1.0, n_m
     if len(names) < 4:
         return None
     pts = {}
-    for n in names:
-        q = distort(LI.proj(H, [L_true[n][:2]])[0], k1)[0] + rng.normal(0, click_sd, 2)
+    for n in names:   # clicks are stored in the labeler's canvas convention (index + 0.5)
+        q = distort(LI.proj(H, [L_true[n][:2]])[0], k1)[0] + rng.normal(0, click_sd, 2) + 0.5
         pts[n] = [round(float(q[0]), 1), round(float(q[1]), 1)]
     Wl = width_labeled or W
     hl = hash_labeled if hash_labeled is not None else hashD_true
     L_lab = LI.landmarks(Wl, fb, hl)
     wl = [[round(L_lab[n][0], 3), round(L_lab[n][1], 3)] for n in names]
-    Hc = LI.fit_h([L_lab[n][:2] for n in names], [pts[n] for n in names])
+    Hc = LI.fit_h([L_lab[n][:2] for n in names], [pts[n] for n in names])    # canvas convention, like the labeler
     q, _ = LI.proj(Hc, [L_lab[n][:2] for n in names])
     rms = float(np.sqrt(np.mean(np.sum((q - np.array([pts[n] for n in names])) ** 2, 1))))
     return {"frame": frame, "game": game, "skip": False, "img": [IMG_W, IMG_H], "pts": pts,

@@ -47,7 +47,9 @@ class Frame:
     def __init__(self, doc, W0, h0, fb, paintfield=None):
         self.doc = doc; self.id = doc["frame"]
         self.names = list(doc["pts"].keys())
-        self.clicks = np.array([doc["pts"][n] for n in self.names], float)
+        # labeler clicks are canvas coords (pixel centre at i+0.5); everything here is index coords (centre at i),
+        # the convention of the paint distance field the labeler snapped H to
+        self.clicks = np.array([doc["pts"][n] for n in self.names], float) - 0.5
         self.keep = np.ones(len(self.names), bool)
         self.cb, self.cW, self.ch = _lin(lambda W, h: [LI.world_of(n, W, h, fb) for n in self.names], W0, h0)
         self.H0 = LI.H_of(doc); self.H0 = self.H0 / self.H0[2, 2]      # the label's H (reporting)
