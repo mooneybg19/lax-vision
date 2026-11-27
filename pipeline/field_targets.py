@@ -225,13 +225,11 @@ def _gauss(hm, p, sigma):
     hm[y0:y1, x0:x1] = np.maximum(hm[y0:y1, x0:x1], g)
 
 
-def render(doc, flip=False, img_wh=(IMG_W, IMG_H), out_wh=(OUT_W, OUT_H), sigma=SIGMA):
-    """Targets for one doc. Returns dict with
-       kp  (N_KP+1, h, w) float32: Gaussians at visible landmarks, last channel = background (1 - sum, clipped)
-       kp_mask (N_KP+1,) bool,
-       ln  (N_LINE+1, h, w) float32: Gaussians at each visible line's two extremities; last = along all lines
-       ln_mask (N_LINE+1,) bool,
-       kp_px (N_KP,2) landmark image coords used (NaN = not rendered), after the flip if flip."""
+def sparse_targets(doc, flip=False, img_wh=(IMG_W, IMG_H), out_wh=(OUT_W, OUT_H), sigma=SIGMA):
+    """Point-list form of the targets (what the training DataLoader ships; the GPU turns it into heatmaps with
+    field_model.build_targets, identical to render()):
+       kp_xy (N_KP,2) output coords (NaN = not rendered), kp_mask (N_KP+1,), ln_xy (N_LINE,2,2) output coords of
+       the two extremities, ln_mask (N_LINE+1,), border (h,w) float32 all-lines channel, kp_px (N_KP,2) image coords."""
     q, kpm = keypoints_px(doc, img_wh)
     exts = line_extremities(doc, img_wh)
     lnm = doc_masks(doc)[1]
@@ -243,23 +241,39 @@ def render(doc, flip=False, img_wh=(IMG_W, IMG_H), out_wh=(OUT_W, OUT_H), sigma=
         exts = {int(LINE_FLIP[ci]): (F(p0), F(p1), F(pl)) for ci, (p0, p1, pl) in exts.items()}
         lnm = np.r_[lnm[:N_LINE][LINE_FLIP], lnm[N_LINE]]
     w, h = out_wh
-    kp = np.zeros((N_KP + 1, h, w), np.float32)
-    qo = to_out(q, img_wh, out_wh)
-    for c in range(N_KP):
-        if np.isfinite(qo[c, 0]):
-            _gauss(kp[c], qo[c], sigma)
-    kp[N_KP] = np.clip(1 - kp[:N_KP].sum(0), 0, 1)
-    ln = np.zeros((N_LINE + 1, h, w), np.float32)
+    ln_xy = np.full((N_LINE, 2, 2), np.nan)
     canvas = np.zeros((h, w), np.uint8)
     for ci, (p0, p1, pl) in exts.items():
-        _gauss(ln[ci], to_out(p0, img_wh, out_wh), sigma)
-        _gauss(ln[ci], to_out(p1, img_wh, out_wh), sigma)
+        ln_xy[ci, 0] = to_out(p0, img_wh, out_wh); ln_xy[ci, 1] = to_out(p1, img_wh, out_wh)
         po = to_out(pl, img_wh, out_wh)
         cv2.polylines(canvas, [np.round(po * 16).astype(np.int32).reshape(-1, 1, 2)], False, 255, 1, cv2.LINE_8, shift=4)
+    border = np.zeros((h, w), np.float32)
     if canvas.any():
         d = ndimage.distance_transform_edt(canvas == 0)
-        ln[N_LINE] = np.exp(-d ** 2 / (2 * sigma ** 2)) * (d <= 3 * sigma)
-    return {"kp": kp, "kp_mask": kpm, "ln": ln, "ln_mask": lnm, "kp_px": q}
+        border = (np.exp(-d ** 2 / (2 * sigma ** 2)) * (d <= 3 * sigma)).astype(np.float32)
+    return {"kp_xy": to_out(q, img_wh, out_wh), "kp_mask": kpm, "ln_xy": ln_xy, "ln_mask": lnm, "border": border, "kp_px": q}
+
+
+def render(doc, flip=False, img_wh=(IMG_W, IMG_H), out_wh=(OUT_W, OUT_H), sigma=SIGMA):
+    """Dense targets for one doc (CPU). Returns dict with
+       kp  (N_KP+1, h, w) float32: Gaussians at visible landmarks, last channel = background (1 - sum, clipped)
+       kp_mask (N_KP+1,) bool,
+       ln  (N_LINE+1, h, w) float32: Gaussians at each visible line's two extremities; last = along all lines
+       ln_mask (N_LINE+1,) bool,
+       kp_px (N_KP,2) landmark image coords used (NaN = not rendered), after the flip if flip."""
+    st = sparse_targets(doc, flip, img_wh, out_wh, sigma)
+    w, h = out_wh
+    kp = np.zeros((N_KP + 1, h, w), np.float32)
+    for c in range(N_KP):
+        if np.isfinite(st["kp_xy"][c, 0]):
+            _gauss(kp[c], st["kp_xy"][c], sigma)
+    kp[N_KP] = np.clip(1 - kp[:N_KP].sum(0), 0, 1)
+    ln = np.zeros((N_LINE + 1, h, w), np.float32)
+    for ci in range(N_LINE):
+        if np.isfinite(st["ln_xy"][ci, 0, 0]):
+            _gauss(ln[ci], st["ln_xy"][ci, 0], sigma); _gauss(ln[ci], st["ln_xy"][ci, 1], sigma)
+    ln[N_LINE] = st["border"]
+    return {"kp": kp, "kp_mask": st["kp_mask"], "ln": ln, "ln_mask": st["ln_mask"], "kp_px": st["kp_px"]}
 
 
 # ------------------------------------------------------------------ decoding (inverse of render)
