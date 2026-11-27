@@ -13,6 +13,12 @@ visible extremities, plus a final channel with Gaussians along every visible lin
 football-lined fields also the yard lines (except 35/55/75, which ARE the restraining/centre lines) and the two
 hash rows. Again masked when the field type does not have them.
 
+Lacrosse markings on football-lined fields: only the lacrosse landmarks/lines that coincide with football paint
+(restraining lines = 30-yard lines, centre = 50, sidelines) are certain to be painted. The rest (box, wings, end
+lines at x = 0/110, creases, goals, faceoff X) are trained on a football game ONLY if that game's labels contain a
+click on one of them (doc["lax_painted"], set per game by annotate_games); otherwise they are masked. Seen on a
+real frame (jesuit-westview): a football field whose lacrosse marks do not follow the "midfield on the 50" model.
+
 Horizontal flip: image x -> (w-1) - x mirrors the field x -> 110 - x, so Left<->Right names swap
 (restrain_L <-> restrain_R, boxL <-> boxR, wing_*_L <-> wing_*_R, creaseL <-> creaseR, fb_L<N> <-> fb_R<N>,
 corner_0_* <-> corner_110_*); near/far (y) never change. The permutation is DERIVED from the world coordinates
@@ -104,11 +110,38 @@ def doc_geometry(doc):
     return W, hashD, fb, H, k1
 
 
-def masks(fb):
+LAX_ON_FB_PAINT = {"restrain_L_near", "restrain_L_far", "restrain_R_near", "restrain_R_far", "center_near", "center_far"}
+KP_LAX_ONLY = np.array([(not f) and (n not in LAX_ON_FB_PAINT) for n, f in zip(KP_NAMES, KP_IS_FB)])
+LINE_LAX_ONLY = np.array([n in ("endline_L", "endline_R", "boxL_near", "boxL_far", "boxR_near", "boxR_far", "wing_near", "wing_far")
+                          for n in LINE_NAMES])
+
+
+def masks(fb, lax_painted=True):
+    """Channels that exist on this field (True = trained). Background / all-lines channels always on."""
     kp = np.ones(N_KP + 1, bool); ln = np.ones(N_LINE + 1, bool)
     if not fb:
         kp[:N_KP] = ~KP_IS_FB; ln[:N_LINE] = ~LINE_IS_FB
+    elif not lax_painted:
+        kp[:N_KP] = ~KP_LAX_ONLY; ln[:N_LINE] = ~LINE_LAX_ONLY
     return kp, ln
+
+
+def annotate_games(docs):
+    """Set doc["lax_painted"] for football games: True iff any frame of the game has a click on a lacrosse-only
+    landmark (so the labeler saw lacrosse paint). Lacrosse-field docs: True. Returns docs (modified in place)."""
+    lax_only = {n for n, m in zip(KP_NAMES, KP_LAX_ONLY) if m}
+    games = {}
+    for d in docs:
+        games.setdefault(d["game"], False)
+        if any(n in lax_only for n in d.get("pts", {})):
+            games[d["game"]] = True
+    for d in docs:
+        d["lax_painted"] = True if d.get("field") != "football" else games[d["game"]]
+    return docs
+
+
+def doc_masks(doc):
+    return masks(doc_geometry(doc)[2], doc.get("lax_painted", True))
 
 
 def project(H, k1, X, img_wh=(IMG_W, IMG_H)):
@@ -140,7 +173,7 @@ def keypoints_px(doc, img_wh=(IMG_W, IMG_H)):
     L = LI.landmarks(W, True, hashD)
     X = np.array([L[n][:2] for n in KP_NAMES], float)
     q = project(H, k1, X, img_wh)
-    kpm, _ = masks(fb)
+    kpm, _ = doc_masks(doc)
     q[~kpm[:N_KP]] = np.nan
     q[~inside(q, img_wh)] = np.nan
     return q, kpm
@@ -150,7 +183,7 @@ def line_extremities(doc, img_wh=(IMG_W, IMG_H), n=600):
     """{channel index: (p0, p1, polyline)} of each visible line in image coords: the first and last visible points
     along the line (refined by bisection at the image border), and the visible polyline for the all-lines channel."""
     W, hashD, fb, H, k1 = doc_geometry(doc)
-    _, lnm = masks(fb)
+    _, lnm = doc_masks(doc)
     out = {}
     for ci, name in enumerate(LINE_NAMES):
         if not lnm[ci]:
@@ -201,7 +234,7 @@ def render(doc, flip=False, img_wh=(IMG_W, IMG_H), out_wh=(OUT_W, OUT_H), sigma=
        kp_px (N_KP,2) landmark image coords used (NaN = not rendered), after the flip if flip."""
     q, kpm = keypoints_px(doc, img_wh)
     exts = line_extremities(doc, img_wh)
-    lnm = masks(doc_geometry(doc)[2])[1]
+    lnm = doc_masks(doc)[1]
     if flip:
         def F(p):
             p = np.array(p, float, copy=True); p[..., 0] = (img_wh[0] - 1) - p[..., 0]; return p

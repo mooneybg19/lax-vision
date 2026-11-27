@@ -46,9 +46,22 @@ def test_masks():
     assert not t["kp_mask"][:FT.N_KP][FT.KP_IS_FB].any() and t["kp_mask"][FT.N_KP]
     assert t["kp"][:FT.N_KP][FT.KP_IS_FB].max() == 0 and t["ln"][:FT.N_LINE][FT.LINE_IS_FB].max() == 0
     d, _ = doc_for(2, fb=True)
-    t = FT.render(d)
+    t = FT.render(d)                        # lax_painted defaults to True
     assert t["kp_mask"].all() and t["ln_mask"].all()
     assert t["kp"][:FT.N_KP][FT.KP_IS_FB].max() > 0.5
+    # football game whose labels never click lacrosse-only paint: those channels are masked, shared ones kept
+    d2 = dict(d, pts={k: v for k, v in d["pts"].items() if k.startswith("fb_")})
+    d2["pts"].setdefault("fb_L10_hnear", [1, 1])
+    FT.annotate_games([d2])
+    assert d2["lax_painted"] is False
+    t = FT.render(d2)
+    i = FT.KP_NAMES.index
+    assert not t["kp_mask"][i("boxL_near")] and not t["kp_mask"][i("faceoff_X")] and not t["kp_mask"][i("creaseR_front")]
+    assert t["kp_mask"][i("restrain_L_near")] and t["kp_mask"][i("center_far")] and t["kp_mask"][i("fb_L10_hnear")]
+    assert t["kp"][i("boxL_near")].max() == 0
+    j = FT.LINE_NAMES.index
+    assert not t["ln_mask"][j("wing_near")] and t["ln_mask"][j("restrain_R")] and t["ln_mask"][j("sideline_far")]
+    d3 = dict(d); d3["pts"] = dict(d["pts"], creaseL_front=[5, 5]); FT.annotate_games([d3]); assert d3["lax_painted"] is True
 
 
 def test_render_decode_roundtrip():
