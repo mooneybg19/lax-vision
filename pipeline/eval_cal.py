@@ -9,7 +9,7 @@ import cv2
 import lax_field as LF
 import field_cal as FC
 import gen_synth_field as G
-import field_infer as FI
+from eval_field import legacy_unet_detect   # the old UNet detector (field_infer now serves the HRNet nets)
 
 model = sys.argv[1] if len(sys.argv) > 1 else "models_cal/field_kp.pt"
 N = int(sys.argv[2]) if len(sys.argv) > 2 else 300
@@ -18,7 +18,7 @@ rng = np.random.default_rng(999)                 # unseen seed
 det_px, field_err, n_land, ok = [], [], [], 0
 for _ in range(N):
     img, hm, uv, vis, Himg = G.render(rng)
-    kp = FI.detect(img, model)
+    kp = legacy_unet_detect(img, model)
     n_land.append(len(kp))
     # detector pixel error vs ground-truth projected landmarks
     for nm, (u, v) in kp.items():
